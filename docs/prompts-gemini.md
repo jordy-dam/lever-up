@@ -77,7 +77,7 @@ Optioneel kader per soort, voor later: duwen, trekken, core, benen.
 
 Voor Level up, lege staten en de afrondschermen. Bestand: `assets/lev/pose-<naam>.png`. Gebruik hier een effen lichtgrijze achtergrond zodat ik hem vrij kan maken; Lev vult 80% van de hoogte.
 
-`pose-hang` (hangend aan de ringen), `pose-front-lever`, `pose-pushup`, `pose-hollow`, `pose-squat`, `pose-cheer` (juichend, armen omhoog), `pose-tired` (moe, handen op de knieën), `pose-thumbs-up`.
+`pose-tired` wordt gebruikt op het rustscherm van de geleide sessie (Lev ademt rustig, ring eromheen). `pose-hang` (hangend aan de ringen), `pose-front-lever`, `pose-pushup`, `pose-hollow`, `pose-squat`, `pose-cheer` (juichend, armen omhoog), `pose-tired` (moe, handen op de knieën), `pose-thumbs-up`.
 
 ## 4. Gezichten voor avatar en Level up (2)
 

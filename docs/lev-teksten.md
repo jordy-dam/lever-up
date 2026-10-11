@@ -47,3 +47,13 @@ Rustdag of lege week (alleen als je de app opent zonder sessie):
 - Rangpaneel op Voortgang: de quote van je huidige rang, klein.
 - Afrondpaneel op Kaarten: een willekeurige regel uit "Na een sessie".
 - Niet bij elke set of tijdens het trainen; de tekst blijft uit de weg.
+
+## Rustscherm (geleide sessie)
+
+Eén regel per rust, willekeurig, naast Lev:
+- "Adem in, adem uit. Zwaartekracht wacht wel."
+- "Schouders los. Straks weer aan."
+- "Pak even wat water, kampioen."
+- "Goed bezig, maatje."
+- "Even rust is ook training."
+- "Je doet het netjes. Echt waar."
