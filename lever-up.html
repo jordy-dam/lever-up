@@ -290,13 +290,17 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .tipcat{text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .rreq{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .rreq .rbar{margin:4px 0 0}
-.seg.mini{margin:0;padding:3px}
-.seg.mini button{min-height:40px;font-size:13px}
-.skrow{padding:14px 0;border-top:1px solid var(--line)}
+.seg.sm{margin:0;padding:3px}
+.seg.sm button{min-height:40px;font-size:13px}
+.skrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
 .skrow:first-child{border-top:0;padding-top:0}
 .skrow:last-child{padding-bottom:0}
-.skrow b{display:block;font-weight:600}
-.skrow span{display:block;color:var(--muted);font-size:13px;margin:2px 0 10px}
+.skrow>div{min-width:0}
+.skrow b{display:block;font-weight:600;font-size:15px;line-height:1.25}
+.skrow span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.skrow .seg.sm{flex:none;margin:0;padding:2px}
+.skrow .seg.sm button{position:relative;flex:none;min-height:34px;padding:0 7px;font-size:12.5px}
+.skrow .seg.sm button::after{content:"";position:absolute;inset:-6px -1px}
 .sl .lv i.half{background:linear-gradient(90deg,var(--accent) 50%,var(--tint) 50%)}
 .rimg{position:relative;width:96px;height:96px;flex:none;border-radius:var(--r);overflow:hidden;background:var(--well);border:3px solid var(--accent)}
 .rimg svg,.rimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -595,7 +599,7 @@ var SKILL_LINES=["Beheerst! Dat noem ik vooruitgang.","Weer een vaardigheid van 
 var STATUS=[["nieuw","Nieuw"],["bezig","Bezig"],["beheerst","Beheerst"]];
 function goalText(c){var e=entryFrom(c),t=/^(\d+)s$/.exec(e.reps);return "Doel: "+e.sets+" \u00d7 "+(t?t[1]+" sec":e.reps+" reps"+(e.per?" per "+e.per:""))+", netjes";}
 function skillSeg(id,cur){
-  return '<div class="seg mini" role="group" aria-label="Status">'+STATUS.map(function(o){return '<button data-act="skill" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>';}).join("")+'</div>';
+  return '<div class="seg sm" role="group" aria-label="Status">'+STATUS.map(function(o){return '<button data-act="skill" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>';}).join("")+'</div>';
 }
 function viewSkills(){
   var h='<button class="backbtn" data-act="skillsclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
@@ -603,7 +607,7 @@ function viewSkills(){
   Object.keys(SUITS).forEach(function(k){
     h+='<h3 style="margin:16px 2px 10px">'+SUITS[k]+'</h3><div class="panel">';
     DECK.filter(function(c){return c.s===k;}).sort(function(a,b){return a.l-b.l;}).forEach(function(c){
-      h+='<div class="skrow"><b>'+esc(c.n)+'</b><span>Niveau '+c.l+' &middot; '+goalText(c)+'</span>'+skillSeg(c.id,skills()[c.id]||"nieuw")+'</div>';
+      h+='<div class="skrow"><div><b>'+esc(c.n)+'</b><span>Niveau '+c.l+'</span></div>'+skillSeg(c.id,skills()[c.id]||"nieuw")+'</div>';
     });
     h+='</div>';
   });
