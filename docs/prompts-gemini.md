@@ -110,3 +110,22 @@ De gebruiker kiest er één in Profiel. Lev blijft de trainer; dit zijn de sport
 | `a6` | vrouw, Oost-Aziatisch, lang zwart haar in een staart onder de pet |
 
 Controle: zelfde stijl, belichting en kadrering in alle zes, gezichten verschillen duidelijk, niemand lijkt op een bestaand persoon. De app toont tot die tijd getekende plaatshouders, en pakt de plaatjes vanzelf op zodra ze er staan.
+
+### 6a. Alle zes avatars in één keer (contactblad)
+
+Handiger dan zes losse prompts: dan zijn de stijl en de belichting automatisch gelijk. Geef het karakterblad van Lev mee als stijlreferentie, plak het stijlblok, en daarna dit:
+
+```
+Maak één afbeelding met zes avatars in een raster van 3 kolommen en 2 rijen, in totaal 3:2 liggend (bijvoorbeeld 3072 x 2048). Elke avatar staat in een eigen vierkant van exact dezelfde grootte, met een effen marineblauwe achtergrond (#1b2a4d), zonder kaders, zonder tekst en zonder nummers. Alleen hoofd en schouders, het hoofd in het midden van het vierkant met een ruime marge. Alle zes dragen de donkerblauwe Lever-up pet met het lime-groene ringetje en een blauw sportshirt, in dezelfde platte 2D-cartoonstijl als Lev, met vriendelijke zelfverzekerde gezichten. Het zijn zes verschillende personen, geen van allen lijkt op Lev of op een bestaand persoon.
+
+Bovenste rij, van links naar rechts:
+1. man, lichte huid, korte bruine haren
+2. man, donkere huid, kort krullend zwart haar
+3. man, Oost-Aziatisch, kort zwart haar
+Onderste rij, van links naar rechts:
+4. vrouw, lichte huid, bruine staart onder de pet
+5. vrouw, donkere huid, lang krullend zwart haar of vlechten onder de pet
+6. vrouw, Oost-Aziatisch, lang zwart haar in een staart onder de pet
+```
+
+Controle: zes gelijke vierkanten, geen tekst, gezichten verschillen duidelijk. Sla het blad op als PNG en geef het aan Claude. Het script `tools/avatars-cut.py` knipt het in `assets/avatars/a1.webp` t/m `a6.webp`. Lukt het niet in één plaatje, gebruik dan de losse prompts hierboven.

@@ -311,6 +311,15 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .avpick:active{transform:scale(.94)}
 .avpick .face{position:absolute;inset:2px}
 .avpick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cue{margin:0;padding:10px 14px;border-radius:var(--rs);background:var(--card);border:var(--ew) solid var(--edge);font-size:14px;line-height:1.4;text-align:left;max-width:100%}
+.cue b{color:var(--accent);font-weight:700}
+.tiplist{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.tiplist li{position:relative;padding-left:18px;font-size:15px;line-height:1.4}
+.tiplist li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.cuehead{margin:14px 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cueitem{padding:8px 0;border-top:1px solid var(--line)}
+.cueitem b{display:block;font-size:14px;font-weight:600}
+.cueitem span{display:block;color:var(--muted);font-size:14px;line-height:1.35}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -413,7 +422,7 @@ function defaults(){
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, lastTap=null, detail=null, wrap=null, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, lastTap=null, detail=null, wrap=null, tipsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -583,6 +592,25 @@ function avatarPicker(act,cur){
     return '<button class="avpick" data-act="'+act+'" data-v="'+a.id+'" aria-pressed="'+(a.id===cur)+'" aria-label="Avatar '+(i+1)+'">'+avatarHtml(a.id,"")+'</button>';
   }).join("")+'</div>';
 }
+/* tips van Lev (docs/lev-tips.md): een aanwijzing per kaart, en algemene tips in Profiel */
+var CUES={"p1a": "Één rechte lijn, billen niet omhoog. Hoe lager de bank, hoe zwaarder het wordt.", "p1b": "Tel rustig tot drie omlaag. Ellebogen schuin naar achter, niet wijd.", "p2a": "Span je buik alsof iemand je een por geeft, en zak met borst en neus tegelijk.", "p2b": "Heupen hoog, hoofd tussen je armen. Duw omhoog alsof je door het plafond wilt.", "p3a": "Polsen recht onder je schouders. Zak diep, maar blijf stevig in je schouders.", "p3b": "Ringen dicht bij je lijf en stil. Wiebelen betekent: even makkelijker maken.", "t1a": "Trek eerst je schouderbladen naar elkaar, dan pas met je ellebogen.", "t1b": "Armen blijven recht, je trekt alleen je schouders omlaag. Kleine beweging, groot effect.", "t2a": "Lichaam als een plank, borst naar de ringen, ellebogen langs je ribben.", "t2b": "Spring omhoog en zak in vijf tellen. Niet vallen onderaan.", "t3a": "Begin elke trek met je schouders omlaag. Kin over de stang, nek niet vooruit.", "t3b": "Hoger is zwaarder. Blijf recht: je heupen laten zakken telt niet.", "c1a": "Onderrug blijft op de grond. Langzaam, en adem uit als je strekt.", "c1b": "Ellebogen onder je schouders, billen in lijn. Liever 20 seconden netjes dan 60 slap.", "c2a": "Onderrug plat, kin naar je borst. Lukt het niet? Buig je knieën iets.", "c2b": "Niet zwaaien. Til je knieën met je buik, niet met vaart.", "c3a": "Duw je schouders weg van je oren en trek je knieën naar je borst. Kort beginnen is prima.", "c3b": "Blijf één stijve boog en schommel. Verlies je de boog? Dan is het genoeg.", "l1a": "Knieën volgen je tenen, borst omhoog. Zak tot het goed voelt, niet verder.", "l1b": "Duw door je hielen en knijp boven even je billen samen.", "l2a": "Stap ver genoeg naar voren en zak recht omlaag, niet vooroverbuigen.", "l2b": "Rug plat tegen de muur, knieën boven je enkels. Blijf rustig doorademen.", "l3a": "Zak langzaam naar de bank en kom zonder zwaaien weer omhoog. Arm naar voren houdt je in balans.", "l3b": "Land zacht op je voeten met licht gebogen knieën. Slordig geworden? Dan stop je."};
+var TIPBLOCKS=[{"t": "Opwarmen", "l": ["Rol een minuut je polsen en schouders voor je begint. Je gewrichten bedanken je later.", "Doe de eerste ronde van een oefening licht. Dat is je eigen warming-up.", "Even hangen aan de stang of de ringen maakt je schouders los."]}, {"t": "Rust en herstel", "l": ["Spieren groeien in je rust, niet tijdens het trainen. Rust is ook training.", "Zet een rustdag tussen je sessies, bijvoorbeeld A, rust, B, rust, A.", "Slaap meetellen. Echt waar."]}, {"t": "Techniek", "l": ["Netjes gaat voor veel. Zakt je vorm in, dan is het genoeg voor die ronde.", "Adem uit als het zwaar wordt, niet je adem inhouden.", "Neem af en toe een filmpje van jezelf. Je ziet meer dan je voelt."]}, {"t": "Opbouwen", "l": ["Voelt alles makkelijk? Pak een kaart van het volgende niveau.", "Eerst een herhaling erbij, dan een ronde erbij, dan pas een moeilijkere variant.", "Vergelijk jezelf met vorige week, niet met een ander."]}, {"t": "Luister naar je lijf", "l": ["Spierbrand is oké. Pijn in een gewricht is een stopsignaal.", "Heb je een blessure of klachten? Vraag het eerst aan een arts of fysiotherapeut.", "Een slokje water tussen de rondes helpt."]}];
+function cueFor(name){
+  var n=String(name).toLowerCase(),c=DECK.filter(function(x){return x.n.toLowerCase()===n;})[0]||DECK.filter(function(x){return x.n.toLowerCase().indexOf(n)===0;})[0];
+  return c?CUES[c.id]:"";
+}
+function cueHtml(name){var c=cueFor(name);return c?'<p class="cue"><b>Lev zegt:</b> '+esc(c)+'</p>':'';}
+function viewTips(){
+  var h='<button class="backbtn" data-act="tipsclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
+  h+='<h2 style="margin:0 2px 4px">Tips van Lev</h2><p class="muted" style="margin:0 2px 16px">Kort en bruikbaar. Algemene tips, geen medisch advies.</p>';
+  TIPBLOCKS.forEach(function(b){h+='<div class="panel"><h3 style="margin-bottom:8px">'+esc(b.t)+'</h3><ul class="tiplist">'+b.l.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>';});
+  h+='<details class="panel fold"><summary>Aanwijzing per oefening<span>24 oefeningen</span></summary>';
+  Object.keys(SUITS).forEach(function(k){
+    h+='<h4 class="cuehead">'+SUITS[k]+'</h4>';
+    DECK.filter(function(c){return c.s===k;}).sort(function(a,b){return a.l-b.l;}).forEach(function(c){h+='<div class="cueitem"><b>'+esc(c.n)+'</b><span>'+esc(CUES[c.id])+'</span></div>';});
+  });
+  return h+'</details>';
+}
 function progName(){return S.program||"Eigen programma";}
 function curType(){return S.draft?S.draft.type:nextType();}
 function isTimed(e){return /^\d+s$/.test(String(e.reps).trim());}
@@ -684,7 +712,7 @@ function viewRun(){
     return h+'</div>';
   }
   var mu=MUSCLES[e.n.toLowerCase()];
-  h+='<div class="workbox">'+exImg(e.n)+'<h2 class="wname">'+esc(e.n)+'</h2>'+(mu?'<p class="muscles">'+mu[0].map(function(k){return MLABEL[k];}).join(" &middot; ")+'</p>':'');
+  h+='<div class="workbox">'+exImg(e.n)+'<h2 class="wname">'+esc(e.n)+'</h2>'+(mu?'<p class="muscles">'+mu[0].map(function(k){return MLABEL[k];}).join(" &middot; ")+'</p>':'')+cueHtml(e.n);
   if(timed){
     var secs=parseInt(e.reps,10);
     h+='<div class="clock" id="rclock" role="timer" aria-live="off">'+(runT.state==="prep"?'Klaar? 3':'00:00 <span>/ '+fmt(secs)+'</span>')+'</div>';
@@ -784,7 +812,7 @@ function viewDetail(e,type){
   var m=MUSCLES[e.n.toLowerCase()];
   var h='<button class="backbtn" data-act="close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
   h+='<div class="hero" aria-hidden="true"><div class="heroin"><img src="assets/exercises/'+slug+'-start.webp" alt="" onerror="this.remove()"><img src="assets/exercises/'+slug+'-end.webp" alt="" onerror="this.remove()"><span>Plaatje volgt</span></div></div>';
-  h+='<h2 style="margin-top:16px">'+esc(e.n)+' <small class="muted" style="font-size:15px;font-weight:600;font-family:var(--body)">Sessie '+type+'</small></h2>';
+  h+='<h2 style="margin-top:16px">'+esc(e.n)+' <small class="muted" style="font-size:15px;font-weight:600;font-family:var(--body)">Sessie '+type+'</small></h2>'+cueHtml(e.n);
   if(secs)h+='<div class="clock" id="tclock" role="timer" aria-live="off">00:00 <span>/ '+pad(Math.floor(secs/60))+':'+pad(secs%60)+'</span></div>';
   h+='<button class="btn full" id="tbtn" data-act="'+(secs?'tstart':'trest')+'" data-v="'+secs+'" style="margin-top:'+(secs?0:14)+'px">'+(secs?'Start timer':'Start rusttimer')+'</button>';
   h+='<div class="panel" style="margin-top:20px"><div class="facts"><dl><dt>Rondes</dt><dd>'+e.sets+'</dd><dt>'+(secs?'Tijd':'Herhalingen')+'</dt><dd>'+(secs?secs+' sec':repLabel(e))+'</dd><dt>Rust</dt><dd>90 sec</dd></dl>'+(m?muscleMap(m):'')+'</div>';
@@ -1022,10 +1050,12 @@ function opts(key,list,cur){
   return '<div class="seg" role="group" style="margin:6px 0 0">'+list.map(function(o){return '<button data-act="cfg" data-k="'+key+'" data-v="'+o[0]+'" aria-pressed="'+(String(cur)===String(o[0]))+'" style="font-size:14px">'+o[1]+'</button>';}).join("")+'</div>';
 }
 function viewProfile(){
+  if(tipsOpen)return viewTips();
   var c=cfg(),r=rankObj(),nm=(S.profile&&S.profile.name)||"";
   var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+'<div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+'</div></div></div><p class="muted" style="margin-top:12px;font-size:14px">Programma: '+esc(progName())+'</p></div>'+
     '<h3 style="margin:20px 2px 10px">Avatar</h3><div class="panel">'+avatarPicker("avatar",avatarId())+'</div>';
   h+='<h3 style="margin:20px 2px 10px">Gewicht</h3>'+viewWeight().replace('<h2>Weigh-in</h2>','<h3 style="margin-bottom:4px">Weigh-in</h3>');
+  h+='<h3 style="margin:20px 2px 10px">Lev</h3><div class="panel xlist"><button class="xrow" data-act="tips"><span class="xt">Tips van Lev</span><span class="xa">opwarmen, rust, techniek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-4px"><path d="M9 5l7 7-7 7"/></svg></span></button></div>';
   h+='<h3 style="margin:20px 2px 10px">Instellingen</h3><div class="panel">'+
     '<div class="setrow"><b>Rust tussen rondes</b>'+opts("rest",[[30,"30 s"],[60,"60 s"],[90,"90 s"],[120,"2 min"],[180,"3 min"]],restSecs())+'</div>'+
     '<div class="setrow"><b>Weekdoel</b>'+opts("goal",[[2,"2"],[3,"3"],[4,"4"],[5,"5"]],goalSessions())+'<small class="muted">sessies per week</small></div>'+
@@ -1058,7 +1088,7 @@ function ensureDraft(type){if(!S.draft||S.draft.type!==type)S.draft={type:type,d
 document.getElementById("app").addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b)return;
   var act=b.getAttribute("data-act"),v=b.getAttribute("data-v");
-  if(act==="tab"){dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
+  if(act==="tab"){tipsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
   if(act==="type"){
     if(S.draft&&Object.keys(S.draft.done).length&&S.draft.type!==v&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;
     S.draft={type:v,done:{}};save();render();return;
@@ -1073,6 +1103,8 @@ document.getElementById("app").addEventListener("click",function(ev){
     return;
   }
   if(act==="finish"){finishSession();return;}
+  if(act==="tips"){tipsOpen=true;render();window.scrollTo(0,0);return;}
+  if(act==="tipsclose"){tipsOpen=false;render();return;}
   if(act==="avatar"){S.profile=S.profile||{};S.profile.avatar=v;save();render();return;}
   if(act==="obav"){var ni=document.getElementById("obname");S.profile=S.profile||{};if(ni)S.profile.name=ni.value.trim().slice(0,20);S.profile.avatar=v;save();render();return;}
   if(act==="cfg"){var ck=b.getAttribute("data-k"),c2=cfg(),nv2=v;

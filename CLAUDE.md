@@ -43,6 +43,7 @@ Geen vijfde rol. Voor dit project:
 - Beelden: promptset voor Gemini staat in `docs/prompts-gemini.md` (stijlblok, vaste ruimte en camera, 8 oefeningen start/eind, 24 kaarten, Lev-poses, badges, rangen, icoon). Jordy maakt ze, Claude zet ze om en plaatst ze.
 - Rangen en Lev-teksten staan in `docs/lev-teksten.md` (Groentje, Veertje, Bar Baas, Lucht Ninja, Legende; quotes alleen op Level up, rangpaneel en afrondpaneel, niet tijdens de training). Dit lost de vraag over tekstballonnen grotendeels op: geen ballonnen.
 - Geleide sessie (focusscherm, automatische rust met Lev, tijdsoefeningen starten zelf) en eerste-keer-schermen zijn gebouwd. Profiel-tab (naam, Gewicht, instellingen, back-up) is gebouwd; Train is een beknopt overzicht (startkaart plus compacte lijst).
+- Tips van Lev: een aanwijzing per oefening (focusscherm en uitgelicht scherm) en een pagina Tips van Lev in Profiel; teksten in `docs/lev-tips.md` en in de code (`CUES`, `TIPBLOCKS`). Avatars: `tools/avatars-cut.py` knipt een contactblad in `assets/avatars/a1..a6.webp`.
 - Gebouwd na de vijf schermen: sessiebouwer (programma's, bibliotheek, aanpassen), rangenladder en opbouw per spiergroep (Voortgang).
 - Volgende stap: hosten via https (nodig om op de telefoon te installeren), Lev-stem in copy (open beslissing), echte plaatjes (Lev-posen, kaarten, oefeningen, app-icoon 1024 px). Let op iOS: de geïnstalleerde app heeft een eigen opslag, data uit Safari komt er niet in.
 - Lokaal bekijken: `python3 -m http.server 5183` in de repo, dan `http://127.0.0.1:5183/lever-up.html`.
