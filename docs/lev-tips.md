@@ -62,9 +62,8 @@ Vier blokken met korte tips, elk één of twee regels. Onderaan: "Lev geeft alge
 - Heb je een blessure of klachten? Vraag het eerst aan een arts of fysiotherapeut.
 - Een slokje water tussen de rondes helpt.
 
-## 3. Waar ze verschijnen (voorstel)
+## 3. Waar ze verschijnen (zo gebouwd)
 
-- **Focusscherm:** de aanwijzing van de oefening, onder de spieren, in Lev's stem ("Lev zegt: ...").
-- **Uitgelicht oefeningscherm:** dezelfde aanwijzing onder de naam.
-- **Profiel, "Tips van Lev":** een rij die een pagina met de vier blokken opent.
-- **Rustscherm:** blijft bij de quotes die er nu staan; geen extra tips daar, zodat het rustig blijft.
+- **Focusscherm en uitgelicht oefeningscherm:** Lev met een spraakballon die de aanwijzing van de oefening zegt, **onderaan**: op het focusscherm vlak boven de knoppen, op het uitgelichte scherm onder het spierpaneel. Niet tussen de naam en de reps.
+- **Profiel, "Tips van Lev":** één tip per keer, met Lev en een grote ballon, het onderwerp erboven, "Tip 3 van 15" en de knoppen Vorige en Volgende tip. De lijst met alle tips en het overzicht van de 24 aanwijzingen zijn vervallen.
+- **Rustscherm:** blijft bij de quotes; geen extra tips daar.
