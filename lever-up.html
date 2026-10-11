@@ -124,8 +124,11 @@ label{display:block;font-weight:600;margin:12px 0 6px}
 body:has(.timer.show) #app{padding-bottom:180px}
 @media (min-width:640px){#app{background:color-mix(in srgb,var(--bg) 86%,transparent);border-inline:1px solid var(--line);min-height:100vh}}
 .timer.show{display:block}
-.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(14px + env(safe-area-inset-top,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:var(--rs);z-index:7;font-weight:600;display:none}
-.toast.show{display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(14px + env(safe-area-inset-top,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:var(--rs);z-index:7;font-weight:600;display:none;align-items:center;gap:12px}
+.toast.show{display:flex}
+.tundo{position:relative;min-height:32px;padding:0 12px;border-radius:8px;background:var(--bg);color:var(--ink);font-weight:700;font-size:14px;flex:none;transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+.tundo::after{content:"";position:absolute;inset:-8px}
+.tundo:active{transform:scale(.97)}
 
 .carousel{position:relative;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:8px -14px 16px;padding:14px calc(50% - 96px);scrollbar-width:none}
 .carousel::-webkit-scrollbar{display:none}
@@ -211,6 +214,10 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .brow{padding:14px 0;border-top:1px solid var(--line)}
 .brow:first-child{border-top:0;padding-top:0}
 .brow .l1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.savebar{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:3;margin-top:16px;padding:12px 0 0;background:linear-gradient(to top,var(--bg) 75%,transparent)}
+.savebar p{text-align:center;font-size:13px;margin-bottom:8px}
+.bhead{display:flex;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
+.bhead span:first-child{width:124px}
 .brow .l1 b{min-width:0;font-weight:600}
 .brow .l2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ib{width:40px;height:40px;border-radius:var(--rs);background:var(--well);border:var(--ew) solid var(--edge);display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:18px;flex:none;position:relative;transition:transform 120ms cubic-bezier(.23,1,.32,1)}
@@ -224,6 +231,14 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .libitem{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:8px 0;background:none;border-top:1px solid var(--line);text-align:left}
 .libitem:first-child{border-top:0}
 .libitem span{color:var(--muted);font-size:14px;white-space:nowrap}
+.fold{padding:0 18px}
+.fold summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;list-style:none;cursor:pointer;font-family:var(--display);font-weight:600;font-size:16px}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary span{color:var(--muted);font-family:var(--body);font-weight:500;font-size:14px;margin-left:auto}
+.fold summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:-4px 2px 0 6px;transition:transform 160ms cubic-bezier(.23,1,.32,1);flex:none}
+.fold[open] summary::after{transform:rotate(225deg);margin-top:4px}
+.fold[open]{padding-bottom:18px}
+.fold[open] summary{margin-bottom:10px}
 .rungs{list-style:none;margin:0;padding:0}
 .rung{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:18px}
 .rung:last-child{padding-bottom:0}
@@ -403,7 +418,11 @@ function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate
 function today(){return ymd(new Date());}
 function weekStart(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
 function parseYmd(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
-function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove("show");},2200);}
+function toast(t,undo){
+  var el=document.getElementById("toast");el.textContent=t;
+  if(undo){var b=document.createElement("button");b.type="button";b.className="tundo";b.textContent="Ongedaan";b.addEventListener("click",function(){clearTimeout(toast._t);el.classList.remove("show");undo();});el.appendChild(b);}
+  el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove("show");},undo?6000:2200);
+}
 function nextType(){return !S.sessions.length?"A":(S.sessions[S.sessions.length-1].type==="A"?"B":"A");}
 function weekSessions(){var ws=weekStart(new Date()).getTime();return S.sessions.filter(function(s){return parseYmd(s.date).getTime()>=ws;}).length;}
 function rankObj(){var n=S.sessions.length,r=RANKS[0];RANKS.forEach(function(x){if(n>=x[0])r=x;});return r;}
@@ -429,6 +448,11 @@ function entryFrom(c){
   else{m=/^(\d+)/.exec(c.a);o={n:c.n,sets:3,reps:m?m[1]:"8"};}
   if(per)o.per=per[1];
   return o;
+}
+function nRondes(n){return n+(n===1?" ronde":" rondes");}
+function amountLabel(e){
+  var t=/^(\d+)s$/.exec(String(e.reps).trim());
+  return nRondes(e.sets)+" \u00b7 "+(t?t[1]+" sec":esc(e.reps)+" reps"+(e.per?" per "+e.per:""));
 }
 function repLabel(e){return esc(e.reps)+(e.per?" per "+e.per:"");}
 function cardById(id){return DECK.filter(function(c){return c.id===id;})[0];}
@@ -512,15 +536,15 @@ function viewToday(){
   var h='<div class="seg" role="group" aria-label="Kies sessie" style="margin:0 0 16px">'+
     ['A','B'].map(function(t){return '<button data-act="type" data-v="'+t+'" aria-pressed="'+(type===t)+'">Sessie '+t+'</button>';}).join("")+'</div>';
   if(!plan.length)h+='<div class="panel"><p>Nog geen oefeningen. Stel hem samen onderaan deze pagina.</p></div>';
-  else{var rs=remainingSets(plan,d);h+='<div class="sess"><div class="sesshead"><b>'+rs.done+' van '+rs.total+' sets</b><button class="btn ghost sm" data-act="edit">Sessie bouwen</button></div><div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' sets gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div></div>';}
+  else{var rs=remainingSets(plan,d);h+='<div class="sess"><div class="sesshead"><b>'+rs.done+' van '+rs.total+' rondes</b><button class="btn ghost sm" data-act="edit">Sessie bouwen</button></div><div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' rondes gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div></div>';}
   plan.forEach(function(e,i){
     var done=(d&&d.done&&d.done[i])||[],cnt=0;
     for(var s=0;s<e.sets;s++)if(done[s])cnt++;
     h+='<div class="ex'+(cnt===e.sets?" done":"")+'"><button class="ex-open" data-act="open" data-i="'+i+'" aria-label="Bekijk '+esc(e.n)+'"><div class="shots" aria-hidden="true">'+shot(e.n,"start","Start")+shot(e.n,"end","Eind")+'</div>'+
-      '<div class="ex-head"><h3>'+esc(e.n)+'</h3><span>'+e.sets+' x '+repLabel(e)+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></div></button><div class="chips">';
+      '<div class="ex-head"><h3>'+esc(e.n)+'</h3><span>'+amountLabel(e)+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></div></button><div class="chips">';
     for(var k=0;k<e.sets;k++){
       var on=!!done[k],cls="chip"+((lastTap===i+"-"+k)?" pop":"");
-      h+='<button class="'+cls+'" data-act="set" data-i="'+i+'" data-s="'+k+'" aria-pressed="'+on+'" aria-label="Set '+(k+1)+' van '+esc(e.n)+'">'+
+      h+='<button class="'+cls+'" data-act="set" data-i="'+i+'" data-s="'+k+'" aria-pressed="'+on+'" aria-label="Ronde '+(k+1)+' van '+esc(e.n)+'">'+
         (on?'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':esc(e.reps))+'</button>';
     }
     h+='</div></div>';
@@ -528,7 +552,7 @@ function viewToday(){
   if(plan.length)h+='<button class="btn lime full" data-act="finish">Sessie afronden</button>';
   if(S.sessions.length){
     h+='<div class="panel" style="margin-top:20px"><h3>Laatste sessies</h3><ul class="list" style="margin-top:6px">';
-    S.sessions.slice(-4).reverse().forEach(function(s){h+='<li><span>'+nlDate(s.date)+'</span><span class="muted">Sessie '+s.type+', '+s.sets+' sets</span></li>';});
+    S.sessions.slice(-4).reverse().forEach(function(s){h+='<li><span>'+nlDate(s.date)+'</span><span class="muted">Sessie '+s.type+', '+nRondes(s.sets)+'</span></li>';});
     h+='</ul></div>';
   }
   h+='<button class="linkbtn" data-act="edit">Sessie samenstellen</button>';
@@ -553,7 +577,7 @@ function viewDetail(e,type){
   h+='<h2 style="margin-top:16px">'+esc(e.n)+' <small class="muted" style="font-size:15px;font-weight:600;font-family:var(--body)">Sessie '+type+'</small></h2>';
   if(secs)h+='<div class="clock" id="tclock" role="timer" aria-live="off">00:00 <span>/ '+pad(Math.floor(secs/60))+':'+pad(secs%60)+'</span></div>';
   h+='<button class="btn full" id="tbtn" data-act="'+(secs?'tstart':'trest')+'" data-v="'+secs+'" style="margin-top:'+(secs?0:14)+'px">'+(secs?'Start timer':'Start rusttimer')+'</button>';
-  h+='<div class="panel" style="margin-top:20px"><div class="facts"><dl><dt>Sets</dt><dd>'+e.sets+'</dd><dt>'+(secs?'Tijd':'Herhalingen')+'</dt><dd>'+(secs?secs+' sec':repLabel(e))+'</dd><dt>Rust</dt><dd>90 sec</dd></dl>'+(m?muscleMap(m):'')+'</div>';
+  h+='<div class="panel" style="margin-top:20px"><div class="facts"><dl><dt>Rondes</dt><dd>'+e.sets+'</dd><dt>'+(secs?'Tijd':'Herhalingen')+'</dt><dd>'+(secs?secs+' sec':repLabel(e))+'</dd><dt>Rust</dt><dd>90 sec</dd></dl>'+(m?muscleMap(m):'')+'</div>';
   if(m){
     var names=function(a){return a.map(function(k){return MLABEL[k];}).join(", ");};
     h+='<div class="mkey"><p>Primair: '+names(m[0])+'</p><p class="s">Secundair: '+names(m[1])+'</p></div>';
@@ -616,13 +640,13 @@ function ladderPanel(){
   var n=S.sessions.length,cur=0;RANKS.forEach(function(r,i){if(n>=r[0])cur=i;});
   var rows=RANKS.map(function(r,i){
     var st=i<cur?"done":i===cur?"now":"todo",sub=i===0?"Start":r[0]+" sessies";
-    if(st==="now")sub+=cur<RANKS.length-1?" · nog "+(RANKS[cur+1][0]-n)+" tot "+RANKS[cur+1][2]:" · hoogste rang";
+    if(st==="now")sub+=" · jij bent hier";
     return '<li class="rung '+st+'"'+(st==="now"?' aria-current="step"':'')+'><span class="dot">'+(st==="done"?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><div><b>'+esc(r[2])+'</b><small>'+sub+'</small></div></li>';
   }).reverse().join("");
-  return '<div class="panel"><h3 style="margin-bottom:14px">Rangen</h3><ol class="rungs">'+rows+'</ol></div>';
+  return '<details class="panel fold"><summary>Alle rangen<span>'+esc(rankName())+'</span></summary><ol class="rungs">'+rows+'</ol></details>';
 }
 function suitPanel(){
-  var h='<div class="panel"><h3 style="margin-bottom:12px">Opbouw per spiergroep</h3><div class="sl"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
+  var h='<details class="panel fold"><summary>Opbouw per spiergroep<span>niveau 1 tot 3</span></summary><div class="sl" style="margin-top:14px"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
   Object.keys(SUITS).forEach(function(k){
     var best=0;h+='<b>'+SUITS[k]+'</b>';
     [1,2,3].forEach(function(l){
@@ -630,7 +654,7 @@ function suitPanel(){
       h+='<span class="lv" role="img" aria-label="Niveau '+l+': '+f+' van '+cs.length+' kaarten">'+cs.map(function(c,i){return '<i class="'+(i<f?'on':'')+'"></i>';}).join("")+'</span>';
     });
   });
-  return h+'</div><p class="muted" style="font-size:14px;margin-top:12px">Een stip is een kaart die je hebt gedaan.</p></div>';
+  return h+'</div><p class="muted" style="font-size:14px;margin-top:12px">Een stip is een kaart die je hebt gedaan.</p></details>';
 }
 function viewProgress(){
   var ws=weekStart(new Date()).getTime();
@@ -649,8 +673,8 @@ function viewProgress(){
   var B=[["first","Eerste sessie",S.sessions.length>=1,"1 sessie"],["five","Vijf keer raak",S.sessions.length>=5,Math.min(5,S.sessions.length)+"/5 sessies"],["week","Consistentie-koning",wk3,"3 sessies in een week"],["cards","Kaartenjager",uniq>=6,Math.min(6,uniq)+"/6 kaarten"]];
   var GOALS='<h3 style="text-align:left;margin:18px 0 4px">Wekelijkse doelen</h3><ul class="list goals">'+
     goals.map(function(g){var ok=g[1]>=g[2];return '<li class="'+(ok?"ok":"")+'"><span class="ck">'+(ok?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><span>'+g[0]+'</span><span class="n">'+Math.min(g[1],g[2])+'/'+g[2]+'</span></li>';}).join("")+'</ul>';
-  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+ladderPanel()+'<div class="panel prog"><div class="ringwrap">'+ring+'</div>'+GOALS+'</div>'+
-    suitPanel()+'<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){return '<div class="badge'+(b[2]?"":" off")+'" aria-label="'+b[1]+(b[2]?", behaald":", nog niet behaald, "+b[3])+'">'+medal(b[0],b[2])+b[1]+(b[2]?'':'<small>'+b[3]+'</small>')+'</div>';}).join("")+'</div>';
+  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel prog"><div class="ringwrap">'+ring+'</div>'+GOALS+'</div>'+
+    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){return '<div class="badge'+(b[2]?"":" off")+'" aria-label="'+b[1]+(b[2]?", behaald":", nog niet behaald, "+b[3])+'">'+medal(b[0],b[2])+b[1]+(b[2]?'':'<small>'+b[3]+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel();
   return h;
 }
 function levelUp(r){
@@ -663,6 +687,13 @@ function levelUp(r){
   function esc2(e){if(e.key==="Escape")close();}
   document.addEventListener("keydown",esc2);ok.addEventListener("click",close);ok.focus();
 }
+function snapB(){return JSON.stringify({b:bld,t:bldType,p:bldProg});}
+function restoreB(sn){var o=JSON.parse(sn);bld=o.b;bldType=o.t;bldProg=o.p;bldLib=false;tab="today";detail=null;render();}
+function dropBuilder(){
+  if(!bld)return;
+  if(JSON.stringify(bld)!==JSON.stringify(S.plan)){var sn=snapB();toast("Wijzigingen weggegooid",function(){restoreB(sn);});}
+  bld=null;
+}
 function viewBuilder(){
   var list=bld[bldType],h='<button class="backbtn" data-act="bcancel"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
   h+='<h2>Sessie samenstellen</h2><p class="muted" style="margin:4px 0 16px">Kies een programma, voeg oefeningen toe uit de bibliotheek of pas aan. Pas bij Opslaan wordt je plan vervangen.</p>';
@@ -672,9 +703,10 @@ function viewBuilder(){
   h+='<div class="seg" role="group" aria-label="Welke sessie" style="margin:20px 0 12px">'+["A","B"].map(function(t){return '<button data-act="bty" data-v="'+t+'" aria-pressed="'+(bldType===t)+'">Sessie '+t+'</button>';}).join("")+'</div>';
   h+='<div class="panel">';
   if(!list.length)h+='<p class="muted">Nog geen oefeningen. Laad een programma of voeg er een toe.</p>';
+  else h+='<div class="bhead"><span>Rondes</span><span>Reps of tijd</span></div>';
   list.forEach(function(e,i){
     h+='<div class="brow"><div class="l1"><b>'+esc(e.n)+(e.per?' <small class="muted" style="font-weight:600">per '+e.per+'</small>':'')+'</b><button class="ib x" data-act="bdel" data-i="'+i+'" aria-label="Verwijder '+esc(e.n)+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
-      '<div class="l2"><button class="ib" data-act="bstep" data-i="'+i+'" data-v="-1" aria-label="Minder sets" '+(e.sets<=1?'disabled':'')+'>&minus;</button><span class="sets" aria-label="'+e.sets+' sets">'+e.sets+'</span><button class="ib" data-act="bstep" data-i="'+i+'" data-v="1" aria-label="Meer sets" '+(e.sets>=10?'disabled':'')+'>+</button>'+
+      '<div class="l2"><button class="ib" data-act="bstep" data-i="'+i+'" data-v="-1" aria-label="Minder rondes" '+(e.sets<=1?'disabled':'')+'>&minus;</button><span class="sets" aria-label="'+nRondes(e.sets)+'">'+e.sets+'</span><button class="ib" data-act="bstep" data-i="'+i+'" data-v="1" aria-label="Meer rondes" '+(e.sets>=10?'disabled':'')+'>+</button>'+
       '<input class="reps" type="text" inputmode="text" autocapitalize="off" data-f="reps" data-i="'+i+'" value="'+esc(e.reps)+'" aria-label="Herhalingen of tijd, bijvoorbeeld 8 of 20s" style="margin-left:6px">'+
       '<button class="ib" data-act="bmove" data-i="'+i+'" data-v="-1" aria-label="Omhoog" '+(i===0?'disabled':'')+'>&uarr;</button><button class="ib" data-act="bmove" data-i="'+i+'" data-v="1" aria-label="Omlaag" '+(i===list.length-1?'disabled':'')+'>&darr;</button></div></div>';
   });
@@ -687,8 +719,7 @@ function viewBuilder(){
     });
     h+='<div class="row" style="margin-top:12px"><input id="own" type="text" placeholder="Eigen oefening" aria-label="Naam eigen oefening" style="flex:1;min-height:48px;font:inherit;color:var(--ink);background:var(--well);border:var(--ew) solid var(--edge);border-radius:var(--rs);padding:0 12px"><button class="btn ghost" data-act="bown">Toevoegen</button></div></div>';
   }
-  h+='<div style="height:16px"></div><button class="btn full" data-act="bsave">Opslaan</button>';
-  if(S.draft&&Object.keys(S.draft.done).length)h+='<p class="muted" style="text-align:center;font-size:14px;margin-top:8px">Een lopende sessie wordt gewist bij opslaan.</p>';
+  h+='<div class="savebar">'+((S.draft&&Object.keys(S.draft.done).length)?'<p class="muted">Een lopende sessie wordt gewist bij opslaan.</p>':'')+'<button class="btn full" data-act="bsave">Opslaan</button></div>';
   return h;
 }
 
@@ -696,7 +727,7 @@ var SUITKEY={push:"p",pull:"t",core:"c",legs:"l"};
 function viewCards(){
   var cards=DECK.filter(function(c){return c.l===drawLevel;});
   var h="";
-  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+wrap.sets+' sets gedaan</h2><p>Week: '+Math.min(wrap.wk,3)+' van 3 sessies. Trek je bonuskaart.</p>'+(wrap.line?'<p class="quote">&ldquo;'+esc(wrap.line)+'&rdquo;<small>Lev</small></p>':'')+'</div>';
+  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,3)+' van 3 sessies. Trek je bonuskaart.</p>'+(wrap.line?'<p class="quote">&ldquo;'+esc(wrap.line)+'&rdquo;<small>Lev</small></p>':'')+'</div>';
   h+='<div class="seg" role="group" aria-label="Niveau" style="margin:0 0 4px">'+[1,2,3].map(function(l){return '<button data-act="level" data-v="'+l+'" aria-pressed="'+(drawLevel===l)+'">Niveau '+l+'</button>';}).join("")+'</div>';
   h+='<div class="carousel'+(drawn?' picked':'')+'" id="carousel" role="region" aria-roledescription="carrousel" tabindex="0" aria-label="Kaarten van niveau '+drawLevel+'">'+cards.map(function(c){
     var dots="";for(var i=1;i<=3;i++)dots+='<i'+(i<=c.l?' class="on"':'')+'></i>';
@@ -785,7 +816,7 @@ function ensureDraft(type){if(!S.draft||S.draft.type!==type)S.draft={type:type,d
 document.getElementById("app").addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b)return;
   var act=b.getAttribute("data-act"),v=b.getAttribute("data-v");
-  if(act==="tab"){bld=null;stopTimer();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
+  if(act==="tab"){dropBuilder();stopTimer();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
   if(act==="type"){
     if(S.draft&&Object.keys(S.draft.done).length&&S.draft.type!==v&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;
     S.draft={type:v,done:{}};save();render();return;
@@ -802,7 +833,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="finish"){
     var t=S.draft?S.draft.type:nextType(),count=0;
     if(S.draft)Object.keys(S.draft.done).forEach(function(k){S.draft.done[k].forEach(function(x){if(x)count++;});});
-    if(!count){toast("Tik eerst minstens één set aan");return;}
+    if(!count){toast("Tik eerst minstens één ronde aan");return;}
     var rankBefore=rankName();S.sessions.push({date:today(),type:t,sets:count});S.draft=null;save();var rankAfter=rankName(),rankNew=rankObj();
     clearInterval(restIv);document.getElementById("timer").classList.remove("show");
     wrap={type:t,sets:count,wk:weekSessions(),line:rankAfter!==rankBefore?"":(weekSessions()===3?WEEK_LINE:pick(SESSION_LINES))};
@@ -815,12 +846,12 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="tstart"){runTimer(+v);return;}
   if(act==="trest"){startRest(90);return;}
   if(act==="edit"){detail=null;bld=JSON.parse(JSON.stringify(S.plan));bldType=S.draft?S.draft.type:nextType();bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}
-  if(act==="bcancel"){bld=null;render();return;}
+  if(act==="bcancel"){dropBuilder();render();return;}
   if(act==="bty"){bldType=v;render();return;}
-  if(act==="bprog"){var g=PROGRAMS[+v];bld={A:g.A.map(function(id){return entryFrom(cardById(id));}),B:g.B.map(function(id){return entryFrom(cardById(id));})};bldProg=+v;render();toast("Programma "+g.n+" geladen");return;}
-  if(act==="bstep"){var e1=bld[bldType][+b.getAttribute("data-i")];e1.sets=Math.min(10,Math.max(1,e1.sets+(+v)));render();return;}
+  if(act==="bprog"){var g=PROGRAMS[+v],sn=snapB();bld={A:g.A.map(function(id){return entryFrom(cardById(id));}),B:g.B.map(function(id){return entryFrom(cardById(id));})};bldProg=+v;render();toast("Programma "+g.n+" geladen",function(){restoreB(sn);});return;}
+  if(act==="bstep"){var e1=bld[bldType][+b.getAttribute("data-i")];e1.sets=Math.min(10,Math.max(1,e1.sets+(+v)));bldProg=-1;render();return;}
   if(act==="bmove"){var ls=bld[bldType],i1=+b.getAttribute("data-i"),j1=i1+(+v);if(j1<0||j1>=ls.length)return;var t1=ls[i1];ls[i1]=ls[j1];ls[j1]=t1;render();return;}
-  if(act==="bdel"){bld[bldType].splice(+b.getAttribute("data-i"),1);render();return;}
+  if(act==="bdel"){var sn2=snapB();bld[bldType].splice(+b.getAttribute("data-i"),1);bldProg=-1;render();toast("Oefening verwijderd",function(){restoreB(sn2);});return;}
   if(act==="blib"){bldLib=!bldLib;render();return;}
   if(act==="bsuit"){bldSuit=v;render();return;}
   if(act==="badd"){bld[bldType].push(entryFrom(cardById(v)));render();toast("Toegevoegd aan sessie "+bldType);return;}

@@ -50,3 +50,6 @@ Op code, door `ux-judge`. Uitkomst: voorwaardelijk goedgekeurd, een injunctie.
 4. **Bibliotheek:** markeer oefeningen die al in de sessie staan, tel ze, geef eigen oefening focus terug. Klein.
 5. **Focus herstellen** op het reps-veld en na laden van een programma; programmaknop niet "ingedrukt" laten na handmatige wijziging. Klein.
 6. **Kleine dingen:** één term (Sessie bouwen of samenstellen), geen herhaalde rangquote bij elk bezoek aan Voortgang, validatiefout inline met `aria-live`, dezelfde SESSION_LINE niet twee keer achter elkaar. Klein.
+
+## Doorgevoerd na ronde 2
+Punt 1 (ongedaan maken en bevestigen), punt 2 (Voortgang herordend en inklapbaar) en punt 3 (vaste Opslaan-balk, rij op één regel) uit de lijst hierboven; ook de programmaknop is niet meer "ingedrukt" na een handmatige wijziging. Nog open: bibliotheek markeert al toegevoegde oefeningen (4), focus herstellen op het reps-veld (5), één term voor "Sessie bouwen" (6).
