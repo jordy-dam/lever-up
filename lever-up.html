@@ -253,9 +253,12 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .restq{color:var(--muted);font-style:italic;max-width:300px;margin:0}
 .onb{display:flex;flex-direction:column;gap:16px;min-height:calc(100vh - 28px);justify-content:center;text-align:center;padding:12px 0 24px}
 .onb h1{font-size:28px}
-.onb .how{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:12px}
-.onb .how li{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:var(--ew) solid var(--edge);border-radius:var(--rs);padding:14px}
-.onb .how b{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--display)}
+.onb .how{list-style:none;margin:8px 0 20px;padding:0;text-align:left}
+.onb .how li{position:relative;display:flex;gap:16px;align-items:flex-start;padding:0 0 26px;min-height:28px;line-height:1.45}
+.onb .how li:last-child{padding-bottom:0}
+.onb .how li::before{content:"";position:absolute;left:13px;top:34px;bottom:6px;width:2px;background:var(--line)}
+.onb .how li:last-child::before{display:none}
+.onb .how b{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--display);font-size:14px}
 .onb .how i{font-style:normal;font-weight:700;color:var(--accent)}
 .progline{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:0 2px 12px;font-size:14px}
 .progline b{font-family:var(--display);font-weight:var(--dw);font-size:15px}
@@ -1087,7 +1090,7 @@ function weightBody(){
   if(sel){
     var delta="";
     if(prev){var dv=sel.avg-prev.avg;delta=' &middot; '+(dv>0?"+":"")+dv.toFixed(1)+' kg t.o.v. de week ervoor';}
-    h+='<div style="margin-top:18px" aria-live="polite"><div class="big" style="font-size:34px">'+sel.avg.toFixed(1)+' kg</div><p class="muted" style="margin:4px 0 10px;font-size:14px">Week van '+shortDate(sel.week)+' &middot; '+sel.n+' '+(sel.n===1?"meting":"metingen")+delta+'</p></div>';
+    h+='<div style="margin-top:18px;min-height:92px" aria-live="polite"><div class="big" style="font-size:34px">'+sel.avg.toFixed(1)+' kg</div><p class="muted" style="margin:4px 0 10px;font-size:14px">Week van '+shortDate(sel.week)+' &middot; '+sel.n+' '+(sel.n===1?"meting":"metingen")+delta+'</p></div>';
   }
   return h+chart(pts,si);
 }
