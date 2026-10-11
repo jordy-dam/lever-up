@@ -95,3 +95,18 @@ Allemaal vierkant, flat, vlakke vormen, lime accent, marineblauwe ondergrond, ge
   5. **legende:** poppetje dat zweeft met een zachte lichte rand (geen felle gloed), Lev valt verbaasd flauw op de achtergrond.
 - **Badges (4 nu):** `assets/badges/eerste-sessie` (ster), `vijf-keer-raak` (vijf), `consistentie-koning` (kroon boven een kalender), `kaartenjager` (waaier van kaarten). Later: `push-up-held`.
 - **App-icoon (1):** `assets/icons/source-1024.png`, 1024 x 1024: Lev's hoofd met pet in een cirkel op marineblauw met een lime ring. Marge van 10% rondom.
+
+## 6. Avatars voor de gebruiker (6, vierkant 1:1)
+
+De gebruiker kiest er één in Profiel. Lev blijft de trainer; dit zijn de sporters. Zelfde stijlblok en dezelfde ruimte-kleuren als hierboven, maar alleen hoofd en schouders op een effen marineblauwe achtergrond (#1b2a4d), midden in beeld, ruime marge, vriendelijke zelfverzekerde uitdrukking. Iedereen draagt de donkerblauwe Lever-up pet met het lime-groene ringetje en een blauw sportshirt (dezelfde als Lev), zodat ze bij hem passen. Geef Gemini het karakterblad van Lev mee als stijlreferentie, maar teken een andere persoon. Bestand: `assets/avatars/a1.webp` t/m `a6.webp`.
+
+| Bestand | Beschrijving |
+|---|---|
+| `a1` | man, lichte huid, korte bruine haren |
+| `a2` | man, donkere huid, kort krullend zwart haar |
+| `a3` | man, Oost-Aziatisch, kort zwart haar |
+| `a4` | vrouw, lichte huid, bruine staart onder de pet |
+| `a5` | vrouw, donkere huid, lang krullend zwart haar of vlechten onder de pet |
+| `a6` | vrouw, Oost-Aziatisch, lang zwart haar in een staart onder de pet |
+
+Controle: zelfde stijl, belichting en kadrering in alle zes, gezichten verschillen duidelijk, niemand lijkt op een bestaand persoon. De app toont tot die tijd getekende plaatshouders, en pakt de plaatjes vanzelf op zodra ze er staan.
