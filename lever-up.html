@@ -159,7 +159,7 @@ svg text{font-family:var(--body);fill:var(--muted);font-size:10px}
 
 .lvl{position:fixed;inset:0;background:rgba(14,24,48,.95);z-index:9;display:flex;align-items:center;justify-content:center;padding:24px}
 .lvl .box{text-align:center;max-width:320px}
-.lvl .hd{width:190px;height:190px;margin:0 auto;border:3px solid var(--accent)}
+.lvl .hd{width:100%;height:auto;aspect-ratio:1/1;margin:0 auto 6px;border:3px solid var(--accent)}
 .lvl h2{font-size:44px;font-weight:800;margin:10px 0 6px}
 .lvl p{margin-bottom:20px;font-size:18px}
 .lvl p.q{font-size:16px;color:var(--muted);font-style:italic;margin:-6px 0 22px}
@@ -303,6 +303,12 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .skrow b{display:block;font-weight:600}
 .skrow span{display:block;color:var(--muted);font-size:13px;margin:2px 0 10px}
 .sl .lv i.half{background:linear-gradient(90deg,var(--accent) 50%,var(--tint) 50%)}
+.rimg{position:relative;width:96px;height:96px;flex:none;border-radius:var(--r);overflow:hidden;background:var(--well);border:3px solid var(--accent)}
+.rimg svg,.rimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rankcard{padding:0;overflow:hidden}
+.rimg.wide{width:100%;height:auto;aspect-ratio:1/1;border:0;border-radius:0}
+.rcbody{padding:16px 18px 18px}
+.rcbody h2{margin:2px 0 6px}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -601,6 +607,13 @@ function viewTips(){
     '<div class="row"><button class="btn ghost" data-act="tipprev">Vorige</button><button class="btn" style="flex:1" data-act="tipnext">Volgende tip</button></div>'+
     '<p class="muted" style="text-align:center;font-size:13px;margin:14px 0 0">Algemene tips, geen medisch advies.</p></div></div>';
 }
+/* rangbeelden: assets/ranks/<korte-naam>.webp; eerst het beeld van de rang, dan het algemene beeld lev.webp, dan een getekend badgetje */
+function rankSlug(r){return r[1].toLowerCase().replace(/\s+/g,"-");}
+function rankImgHtml(r,cls){
+  var i=RANKS.indexOf(r),num=["I","II","III","IV","V"][i]||"";
+  return '<div class="rimg '+(cls||'')+'"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#1b2a4d"/><circle cx="50" cy="50" r="34" fill="none" stroke="var(--accent)" stroke-width="4"/><text x="50" y="62" text-anchor="middle" style="font:700 32px Figtree;fill:var(--accent)">'+num+'</text></svg>'+
+    '<img src="assets/ranks/'+rankSlug(r)+'.webp" alt="" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=\'assets/ranks/lev.webp\';}else{this.remove();}"></div>';
+}
 function progName(){return S.program||"Eigen programma";}
 function curType(){return S.draft?S.draft.type:nextType();}
 function isTimed(e){return /^\d+s$/.test(String(e.reps).trim());}
@@ -693,8 +706,9 @@ function endRest(auto){
   runPhase="work";runT.state="idle";render();window.scrollTo(0,0);autoStartTimed();
 }
 function exImg(name){
-  var slug=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-  return '<div class="hero" aria-hidden="true"><div class="heroin"><img src="assets/exercises/'+slug+'-start.webp" alt="" onerror="this.remove()"><img src="assets/exercises/'+slug+'-end.webp" alt="" onerror="this.remove()"><span>Plaatje volgt</span></div></div>';
+  var slug=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),c=cardOf(name);
+  var fb=c?"if(!this.dataset.f){this.dataset.f=1;this.src='assets/cards/"+c.id+".webp';}else{this.remove();}":"this.remove()";
+  return '<div class="hero" aria-hidden="true"><div class="heroin"><img src="assets/exercises/'+slug+'-start.webp" alt="" onerror="'+fb+'"><img src="assets/exercises/'+slug+'-end.webp" alt="" onerror="this.remove()"><span>Plaatje volgt</span></div></div>';
 }
 function focusOf(plan){
   var c={};plan.forEach(function(e){var m=MUSCLES[e.n.toLowerCase()];if(m)m[0].forEach(function(k){c[k]=(c[k]||0)+1;});});
@@ -710,7 +724,7 @@ function viewRun(){
   if(runPhase==="rest"){
     var left=Math.max(0,Math.ceil((runRest.end-Date.now())/1000)),off=(326.7*(1-left/runRest.total)).toFixed(1);
     h+='<div class="restwrap"><div class="ringbox"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--tint)" stroke-width="6"/><circle id="rring" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="326.7" style="stroke-dashoffset:'+off+'"/></svg>'+
-      '<div class="face restface"><img src="assets/lev/pose-tired.png" alt="" onerror="this.onerror=null;this.src=\'assets/lev/avatar.webp\'"></div></div>'+
+      '<div class="face restface"><img src="assets/lev/pose-tired.webp" alt="" onerror="this.onerror=null;this.src=\'assets/lev/avatar.webp\'"></div></div>'+
       '<div class="restnum" id="rnum" role="timer" aria-label="Rust, nog '+left+' seconden">'+fmt(left)+'</div>'+
       '<p class="restq">&ldquo;'+esc(runRest.quote)+'&rdquo;</p>'+
       '<p class="nextup">Straks: <b>'+esc(e.n)+'</b>, ronde '+(pos.k+1)+' van '+e.sets+'</p>'+
@@ -814,7 +828,7 @@ function viewDetail(e,type){
   var t=/^(\d+)s$/.exec(String(e.reps).trim()),secs=t?+t[1]:0;
   var m=MUSCLES[e.n.toLowerCase()];
   var h='<button class="backbtn" data-act="close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
-  h+='<div class="hero" aria-hidden="true"><div class="heroin"><img src="assets/exercises/'+slug+'-start.webp" alt="" onerror="this.remove()"><img src="assets/exercises/'+slug+'-end.webp" alt="" onerror="this.remove()"><span>Plaatje volgt</span></div></div>';
+  h+=exImg(e.n);
   h+='<h2 style="margin-top:16px">'+esc(e.n)+' <small class="muted" style="font-size:15px;font-weight:600;font-family:var(--body)">Sessie '+type+'</small></h2>';
   if(secs)h+='<div class="clock" id="tclock" role="timer" aria-live="off">00:00 <span>/ '+pad(Math.floor(secs/60))+':'+pad(secs%60)+'</span></div>';
   if(secs)h+='<button class="btn full" id="tbtn" data-act="tstart" data-v="'+secs+'">Start timer</button>';
@@ -876,8 +890,8 @@ function rankPanel(){
   }
   var o={},st=streakWeeks(),dots="";S.sessions.forEach(function(x){o[x.date]=1;});
   for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);dots+='<span><i class="'+(o[ymd(d)]?"on":"")+'"></i>'+["Zo","Ma","Di","Wo","Do","Vr","Za"][d.getDay()]+'</span>';}
-  return '<div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+
-    '<div style="flex:1;min-width:0"><div class="k">Rang</div><h2>'+esc(rankName())+'</h2>'+bars+'<div class="k" style="margin-top:8px">'+line+'</div></div></div><div style="margin-top:14px">'+levBubble(rankObj()[3])+'</div></div>'+
+  return '<div class="panel rankcard">'+rankImgHtml(rankObj(),"wide")+
+    '<div class="rcbody"><div class="k" style="color:var(--muted);font-weight:600;font-size:13px">Rang</div><h2>'+esc(rankName())+'</h2>'+bars+'<div class="k" style="margin-top:8px;color:var(--muted);font-size:13px;font-weight:600">'+line+'</div><div style="margin-top:14px">'+levBubble(rankObj()[3])+'</div></div></div>'+
     '<div class="panel"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg>'+
     '<div><div class="nr">'+st+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(st?(st===1?'week':'weken')+' op rij met 3 sessies':'Haal deze week 3 sessies')+'</div></div></div><div class="week7" role="img" aria-label="Trainingsdagen, laatste 7 dagen">'+dots+'</div></div>';
 }
@@ -931,7 +945,7 @@ function viewProgress(){
 function levelUp(r){
   var o=document.createElement("div");o.className="lvl";
   o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","lvl-h");
-  o.innerHTML='<div class="box"><div class="face hd"><img src="assets/lev/face-cheer.webp" alt=""></div><h2 id="lvl-h">Level up!</h2><p>Nieuwe rang: <b style="color:var(--accent)">'+esc(r[2])+'</b></p><p class="q">&ldquo;'+esc(r[3])+'&rdquo;</p><button class="btn lime" id="lvl-ok">Door</button></div>';
+  o.innerHTML='<div class="box">'+rankImgHtml(r,"hd")+'<h2 id="lvl-h">Level up!</h2><p>Nieuwe rang: <b style="color:var(--accent)">'+esc(r[2])+'</b></p><p class="q">&ldquo;'+esc(r[3])+'&rdquo;</p><button class="btn lime" id="lvl-ok">Door</button></div>';
   document.body.appendChild(o);confetti();
   var ok=document.getElementById("lvl-ok");
   function close(){o.remove();document.removeEventListener("keydown",esc2);}
