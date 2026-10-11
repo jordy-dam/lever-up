@@ -289,10 +289,7 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .lev.big .lbub::before{bottom:auto;top:50%;margin-top:-5px}
 .workbox .lev{margin-top:auto}
 .workbox .lev + .runact{margin-top:12px}
-.tipsview{display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
-.tipmid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 0}
-.tipbot{padding-top:12px}
-.tipcat{text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.tipcat{text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .rreq{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .rreq .rbar{margin:4px 0 0}
 .seg.mini{margin:0;padding:3px}
@@ -310,6 +307,13 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .rcbody{padding:16px 18px 18px}
 .rcbody h2{margin:2px 0 6px}
 .bigmedal svg{width:140px;height:140px;margin-bottom:8px}
+.avbtn{position:relative;flex:none;width:96px;height:96px;padding:0;background:none;border-radius:50%;transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+.avbtn:active{transform:scale(.97)}
+.avbtn .face{width:96px;height:96px}
+.avedit{position:absolute;right:-2px;bottom:-2px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;border:2px solid var(--card)}
+.hdav{position:relative;flex:none;width:44px;height:44px;padding:0;background:none;border-radius:50%;transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+.hdav::after{content:"";position:absolute;inset:-4px}
+.hdav:active{transform:scale(.95)}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -410,7 +414,7 @@ function defaults(){
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, tipsOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldName="", bldNameTouched=false, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, wSel=null, profOpen={weight:false,tips:false,settings:false,data:false}, avatarOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldName="", bldNameTouched=false, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -599,14 +603,12 @@ function levBubble(text,big){
 function levCue(name){var c=cueFor(name);return c?levBubble(c):'';}
 var ALLTIPS=[];TIPBLOCKS.forEach(function(b){b.l.forEach(function(x){ALLTIPS.push({c:b.t,t:x});});});
 var tipIdx=Math.floor(Math.random()*ALLTIPS.length);
-function viewTips(){
+function tipsBody(){
   var t=ALLTIPS[tipIdx];
-  return '<div class="tipsview"><div><button class="backbtn" data-act="tipsclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>'+
-    '<h2 style="margin:0 2px">Tips van Lev</h2></div>'+
-    '<div class="tipmid"><div class="tipcat">'+esc(t.c)+'</div>'+levBubble(t.t,true)+'</div>'+
-    '<div class="tipbot"><p class="muted" style="text-align:center;margin:0 0 12px" aria-live="polite">Tip '+(tipIdx+1)+' van '+ALLTIPS.length+'</p>'+
+  return '<div class="tipcat">'+esc(t.c)+'</div>'+levBubble(t.t)+
+    '<p class="muted" style="text-align:center;margin:14px 0 12px;font-size:14px" aria-live="polite">Tip '+(tipIdx+1)+' van '+ALLTIPS.length+'</p>'+
     '<div class="row"><button class="btn ghost" data-act="tipprev">Vorige</button><button class="btn" style="flex:1" data-act="tipnext">Volgende tip</button></div>'+
-    '<p class="muted" style="text-align:center;font-size:13px;margin:14px 0 0">Algemene tips, geen medisch advies.</p></div></div>';
+    '<p class="muted" style="text-align:center;font-size:13px;margin:12px 0 0">Algemene tips, geen medisch advies.</p>';
 }
 /* rangbeelden: assets/ranks/<korte-naam>.webp; eerst het beeld van de rang, dan het algemene beeld lev.webp, dan een getekend badgetje */
 function rankSlug(r){return r[1].toLowerCase().replace(/\s+/g,"-");}
@@ -772,7 +774,7 @@ function header(){
   var n=weekSessions(),r="";
   for(var i=0;i<goalSessions();i++)r+='<i class="'+(i<n?"on":"")+'"></i>';
   return '<div class="top"><div class="brand">'+
-    avatarHtml(avatarId(),"avatar")+
+    '<button class="hdav" data-act="tab" data-v="profile" aria-label="Naar je profiel">'+avatarHtml(avatarId(),"avatar")+'</button>'+
     '<div><h1>Lever-up</h1><div class="rank">'+rankName()+'</div></div></div>'+
     '<div class="rings" role="img" aria-label="'+n+' van '+goalSessions()+' sessies deze week">'+r+'</div></div>';
 }
@@ -1057,60 +1059,61 @@ function bindCarousel(){
   },{passive:true});
 }
 
-function chart(avgs){
-  var pts=avgs.slice(-8);
+function shortDate(ymdStr){return parseYmd(ymdStr).toLocaleDateString("nl-NL",{day:"numeric",month:"short"});}
+function chart(pts,si){
   if(pts.length<2)return '<p class="muted">Je grafiek verschijnt zodra je twee weken hebt gewogen.</p>';
-  var W=320,H=140,pl=30,pr=12,pt=12,pb=22,vals=pts.map(function(p){return p.avg;});
+  var W=320,H=150,pl=30,pr=14,pt=14,pb=26,vals=pts.map(function(p){return p.avg;});
   var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
   if(mx-mn<1){mx+=.5;mn-=.5;}
   function X(i){return pl+(W-pl-pr)*i/(pts.length-1);}
   function Y(v){return pt+(H-pt-pb)*(1-(v-mn)/(mx-mn));}
   var line=pts.map(function(p,i){return (i?"L":"M")+X(i).toFixed(1)+" "+Y(p.avg).toFixed(1);}).join(" ");
-  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Weekgemiddelde gewicht">';
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="group" aria-label="Weekgemiddelde gewicht, tik een punt voor de details">';
   s+='<text x="0" y="'+(pt+8)+'">'+mx.toFixed(1)+'</text><text x="0" y="'+(H-pb)+'">'+mn.toFixed(1)+'</text>';
+  s+='<text x="'+pl+'" y="'+(H-6)+'">'+shortDate(pts[0].week)+'</text><text x="'+(W-pr)+'" y="'+(H-6)+'" text-anchor="end">'+shortDate(pts[pts.length-1].week)+'</text>';
+  s+='<line x1="'+X(si).toFixed(1)+'" x2="'+X(si).toFixed(1)+'" y1="'+pt+'" y2="'+(H-pb)+'" stroke="var(--accent)" stroke-opacity=".28" stroke-dasharray="3 4"/>';
   s+='<path d="'+line+'" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
-  pts.forEach(function(p,i){s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.avg).toFixed(1)+'" r="4.5" fill="var(--card)" stroke="var(--accent)" stroke-width="2.5"/>';});
+  pts.forEach(function(p,i){
+    var on=i===si;
+    s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.avg).toFixed(1)+'" r="'+(on?6.5:4.5)+'" fill="'+(on?'var(--accent)':'var(--card)')+'" stroke="var(--accent)" stroke-width="2.5"/>';
+    s+='<circle data-act="wpt" data-i="'+i+'" cx="'+X(i).toFixed(1)+'" cy="'+Y(p.avg).toFixed(1)+'" r="16" fill="transparent" tabindex="0" role="button" aria-label="Week van '+shortDate(p.week)+', '+p.avg.toFixed(1)+' kg" style="cursor:pointer"/>';
+  });
   return s+'</svg>';
 }
-function viewWeight(){
-  var avgs=weeklyAverages(),cur=avgs.length?avgs[avgs.length-1]:null,prev=avgs.length>1?avgs[avgs.length-2]:null;
-  var last=S.weights.length?S.weights[S.weights.length-1]:null;
-  var h='<div class="panel"><h2>Weigh-in</h2><label for="kg">Gewicht vandaag (kg)</label><form data-form="weigh" novalidate><div class="row"><input id="kg" type="number" inputmode="decimal" step="0.1" min="20" max="400" placeholder="'+(last?last.kg:"")+'" aria-describedby="kgerr"><button class="btn" type="submit">Opslaan</button></div><p class="err" id="kgerr" role="alert" hidden></p></form></div>';
-  h+='<div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h3>Weekgemiddelde</h3><span class="muted" style="font-weight:600">laatste 8 weken</span></div>';
-  if(cur){
+function weightBody(){
+  var avgs=weeklyAverages(),pts=avgs.slice(-8),si=(wSel===null||wSel>=pts.length)?pts.length-1:wSel,sel=pts.length?pts[si]:null;
+  var idx=avgs.length-pts.length+si,prev=idx>0?avgs[idx-1]:null,last=S.weights.length?S.weights[S.weights.length-1]:null;
+  var h='<form data-form="weigh" novalidate><label for="kg" style="margin:0 0 6px;font-size:14px;color:var(--muted)">Gewicht vandaag (kg)</label><div class="row"><input id="kg" type="number" inputmode="decimal" step="0.1" min="20" max="400" placeholder="'+(last?last.kg:"")+'" aria-describedby="kgerr"><button class="btn" type="submit">Opslaan</button></div><p class="err" id="kgerr" role="alert" hidden></p></form>';
+  if(sel){
     var delta="";
-    if(prev){var dv=cur.avg-prev.avg;delta=' <span style="font-weight:600">'+(dv>0?"+":"")+dv.toFixed(1)+' kg t.o.v. vorige week</span>';}
-    h+='<div class="big">'+cur.avg.toFixed(1)+' kg</div><p class="muted" style="margin:4px 0 12px">Deze week, gemiddelde van '+cur.n+' '+(cur.n===1?"meting":"metingen")+'.'+delta+'</p>';
+    if(prev){var dv=sel.avg-prev.avg;delta=' &middot; '+(dv>0?"+":"")+dv.toFixed(1)+' kg t.o.v. de week ervoor';}
+    h+='<div style="margin-top:18px" aria-live="polite"><div class="big" style="font-size:34px">'+sel.avg.toFixed(1)+' kg</div><p class="muted" style="margin:4px 0 10px;font-size:14px">Week van '+shortDate(sel.week)+' &middot; '+sel.n+' '+(sel.n===1?"meting":"metingen")+delta+'</p></div>';
   }
-  h+=chart(avgs)+'</div>';
-  if(S.weights.length){
-    var lw=S.weights[S.weights.length-1];
-    h+='<details class="panel fold"><summary>Laatste meting<span>'+nlDate(lw.date)+' &middot; '+lw.kg.toFixed(1)+' kg</span></summary><ul class="list">';
-    S.weights.slice(-8).reverse().forEach(function(w){h+='<li><span>'+nlDate(w.date)+'</span><span>'+w.kg.toFixed(1)+' kg</span></li>';});
-    h+='</ul></details>';
-  }
-  return h;
+  return h+chart(pts,si);
 }
 
 function opts(key,list,cur){
   return '<div class="seg" role="group" style="margin:6px 0 0">'+list.map(function(o){return '<button data-act="cfg" data-k="'+key+'" data-v="'+o[0]+'" aria-pressed="'+(String(cur)===String(o[0]))+'" style="font-size:14px">'+o[1]+'</button>';}).join("")+'</div>';
 }
 function viewProfile(){
-  if(tipsOpen)return viewTips();
   var c=cfg(),r=rankObj(),nm=(S.profile&&S.profile.name)||"";
-  var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+'<div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+' &middot; '+esc(progName())+'</div></div></div></div>'+
-    '<h3 style="margin:20px 2px 10px">Avatar</h3><div class="panel">'+avatarPicker("avatar",avatarId())+'</div>';
-  h+='<h3 style="margin:20px 2px 10px">Gewicht</h3>'+viewWeight().replace('<h2>Weigh-in</h2>','<h3 style="margin-bottom:4px">Weigh-in</h3>');
-  h+='<h3 style="margin:20px 2px 10px">Lev</h3><div class="panel xlist"><button class="xrow" data-act="tips"><span class="xt">Tips van Lev</span><span class="xa">opwarmen, rust, techniek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-4px"><path d="M9 5l7 7-7 7"/></svg></span></button></div>';
-  h+='<h3 style="margin:20px 2px 10px">Instellingen</h3><div class="panel">'+
+  var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox"><button class="avbtn" data-act="avtoggle" aria-expanded="'+avatarOpen+'" aria-label="Avatar wijzigen">'+avatarHtml(avatarId(),"lav")+'<span class="avedit" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg></span></button><div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+' &middot; '+esc(progName())+'</div></div></div></div>'+
+    (avatarOpen?'<div class="panel" style="margin-top:-6px">'+avatarPicker("avatar",avatarId())+'</div>':'');
+  var lw=S.weights.length?S.weights[S.weights.length-1]:null,wsum=lw?lw.kg.toFixed(1)+' kg &middot; '+(lw.date===today()?'vandaag':nlDate(lw.date)):'nog niet gewogen';
+  var rsum=(restSecs()<120?restSecs()+' s':(restSecs()/60)+' min')+' rust &middot; '+goalSessions()+' per week';
+  function fold(key,title,sum,body){return '<details class="panel fold" data-fold="'+key+'"'+(profOpen[key]?' open':'')+'><summary>'+title+'<span>'+sum+'</span></summary>'+body+'</details>';}
+  h+=fold("weight","Gewicht",wsum,weightBody());
+  h+=fold("tips","Tips van Lev",esc(ALLTIPS[tipIdx].c),tipsBody());
+  h+=fold("settings","Instellingen",rsum,
     '<div class="setrow"><b>Rust tussen rondes</b>'+opts("rest",[[30,"30 s"],[60,"60 s"],[90,"90 s"],[120,"2 min"],[180,"3 min"]],restSecs())+'</div>'+
     '<div class="setrow"><b>Weekdoel</b>'+opts("goal",[[2,"2"],[3,"3"],[4,"4"],[5,"5"]],goalSessions())+'<small class="muted">sessies per week</small></div>'+
     '<div class="setrow"><b>Geluid</b>'+opts("sound",[["on","Aan"],["off","Uit"]],c.sound===false?"off":"on")+'</div>'+
-    '<div class="setrow"><b>Trillen</b>'+opts("haptics",[["on","Aan"],["off","Uit"]],c.haptics===false?"off":"on")+'</div></div>';
-  h+='<h3 style="margin:20px 2px 10px">Gegevens</h3><div class="panel"><p class="muted" style="font-size:14px;margin-bottom:12px">Alles staat alleen op dit toestel. Sla regelmatig een back-up op, vooral voor je een telefoon wisselt.</p>'+
+    '<div class="setrow"><b>Trillen</b>'+opts("haptics",[["on","Aan"],["off","Uit"]],c.haptics===false?"off":"on")+'</div>');
+  h+=fold("data","Gegevens","back-up en wissen",
+    '<p class="muted" style="font-size:14px;margin-bottom:12px">Alles staat alleen op dit toestel. Sla regelmatig een back-up op, vooral voor je een telefoon wisselt.</p>'+
     '<button class="btn ghost full" data-act="export">Back-up opslaan</button><div style="height:8px"></div>'+
     '<button class="btn ghost full" data-act="importpick">Back-up terugzetten</button><input id="impfile" type="file" accept="application/json,.json" hidden>'+
-    '<button class="linkbtn" data-act="wipe" style="color:#ffb4a8">'+(wipeArmed?'Zeker weten? Tik nogmaals om alles te wissen':'Alles wissen')+'</button></div>';
+    '<button class="linkbtn" data-act="wipe" style="color:#ffb4a8">'+(wipeArmed?'Zeker weten? Tik nogmaals om alles te wissen':'Alles wissen')+'</button>');
   h+='<p class="muted" style="text-align:center;font-size:13px;margin:16px 0">Lever-up &middot; Lev traint met je mee</p>';
   return h;
 }
@@ -1135,22 +1138,22 @@ function ensureDraft(type){if(!S.draft||S.draft.type!==type)S.draft={type:type,d
 document.getElementById("app").addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b)return;
   var act=b.getAttribute("data-act"),v=b.getAttribute("data-v");
-  if(act==="tab"){tipsOpen=false;skillsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
+  if(act==="tab"){wSel=null;profOpen={weight:false,tips:false,settings:false,data:false};avatarOpen=false;skillsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
   if(act==="type"){
     if(S.draft&&Object.keys(S.draft.done).length&&S.draft.type!==v&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;
     S.draft={type:v,done:{}};save();render();return;
   }
   if(act==="finish"){finishSession();return;}
-  if(act==="tips"){tipsOpen=true;render();window.scrollTo(0,0);return;}
   if(act==="skills"){skillsOpen=true;render();window.scrollTo(0,0);return;}
   if(act==="skillsclose"){skillsOpen=false;render();return;}
   if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx();if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;save();render();toast(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt");afterRank(rb);return;}
   if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx();skills()[wrap.sugg.id]="beheerst";wrap.sugg=null;save();render();toast(pick(SKILL_LINES));afterRank(rb2);return;}
   if(act==="skillno"){if(!wrap||!wrap.sugg)return;(S.skillAsk||(S.skillAsk={}))[wrap.sugg.id]=S.sessions.length;wrap.sugg=null;save();render();return;}
-  if(act==="tipsclose"){tipsOpen=false;render();return;}
   if(act==="tipnext"){tipIdx=(tipIdx+1)%ALLTIPS.length;render();return;}
   if(act==="tipprev"){tipIdx=(tipIdx-1+ALLTIPS.length)%ALLTIPS.length;render();return;}
-  if(act==="avatar"){S.profile=S.profile||{};S.profile.avatar=v;save();render();return;}
+  if(act==="wpt"){wSel=+b.getAttribute("data-i");render();return;}
+  if(act==="avtoggle"){avatarOpen=!avatarOpen;render();return;}
+  if(act==="avatar"){S.profile=S.profile||{};S.profile.avatar=v;avatarOpen=false;save();render();return;}
   if(act==="obav"){var ni=document.getElementById("obname");S.profile=S.profile||{};if(ni)S.profile.name=ni.value.trim().slice(0,20);S.profile.avatar=v;save();render();return;}
   if(act==="cfg"){var ck=b.getAttribute("data-k"),c2=cfg(),nv2=v;
     if(ck==="rest"||ck==="goal")c2[ck]=+nv2;else c2[ck]=(nv2==="on");
@@ -1233,6 +1236,9 @@ document.getElementById("app").addEventListener("change",function(ev){
   if(!/^\d{1,3}s?$/.test(v)||+v.replace("s","")<1){toast("Gebruik een getal, of een tijd zoals 20s");f.value=bld[bldType][+f.getAttribute("data-i")].reps;return;}
   bld[bldType][+f.getAttribute("data-i")].reps=v;f.value=v;
 });
+document.getElementById("app").addEventListener("toggle",function(ev){
+  var d=ev.target,k=d&&d.getAttribute&&d.getAttribute("data-fold");if(k)profOpen[k]=d.open;
+},true);
 document.getElementById("app").addEventListener("submit",function(ev){
   var f=ev.target.closest("[data-form=weigh]");if(!f)return;ev.preventDefault();
   var inp=document.getElementById("kg"),err=document.getElementById("kgerr");
@@ -1242,7 +1248,7 @@ document.getElementById("app").addEventListener("submit",function(ev){
   S.weights=S.weights.filter(function(w){return w.date!==td;});
   S.weights.push({date:td,kg:Math.round(kg*10)/10});
   S.weights.sort(function(x,y){return x.date<y.date?-1:1;});
-  save();toast(had?"Gewicht van vandaag bijgewerkt":"Gewicht opgeslagen");render();
+  save();wSel=null;toast(had?"Gewicht van vandaag bijgewerkt":"Gewicht opgeslagen");render();
 });
 
 

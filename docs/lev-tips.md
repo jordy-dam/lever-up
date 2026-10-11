@@ -65,5 +65,5 @@ Vier blokken met korte tips, elk één of twee regels. Onderaan: "Lev geeft alge
 ## 3. Waar ze verschijnen (zo gebouwd)
 
 - **Focusscherm en uitgelicht oefeningscherm:** Lev met een spraakballon die de aanwijzing van de oefening zegt, **onderaan**: op het focusscherm vlak boven de knoppen, op het uitgelichte scherm onder het spierpaneel. Niet tussen de naam en de reps.
-- **Profiel, "Tips van Lev":** één tip per keer, met Lev en een grote ballon, het onderwerp erboven, "Tip 3 van 15" en de knoppen Vorige en Volgende tip. De lijst met alle tips en het overzicht van de 24 aanwijzingen zijn vervallen.
+- **Profiel, blok "Tips van Lev":** een inklapblok zoals Gewicht en Instellingen, met het onderwerp van de huidige tip op de kop. Open zie je één tip met Lev en een ballon, "Tip 3 van 15" en Vorige en Volgende tip; sluiten met een tik op de kop, geen aparte pagina.
 - **Rustscherm:** blijft bij de quotes; geen extra tips daar.
