@@ -309,6 +309,7 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .rimg.wide{width:100%;height:auto;aspect-ratio:1/1;border:0;border-radius:0}
 .rcbody{padding:16px 18px 18px}
 .rcbody h2{margin:2px 0 6px}
+.bigmedal svg{width:140px;height:140px;margin-bottom:8px}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -404,12 +405,12 @@ function defaults(){
       B:[{n:"Ring rows, voeten verhoogd",sets:3,reps:"8"},{n:"Split squats",sets:3,reps:"8"},{n:"Tuck L-sit op parallettes",sets:3,reps:"10s"},{n:"Dead bug",sets:3,reps:"10"}]
     },
     sessions:[], weights:[], cards:{}, draft:null,
-    profile:{name:""}, settings:{rest:90}, skills:{}, skillAsk:{}, onboarded:false
+    profile:{name:""}, settings:{rest:90}, skills:{}, skillAsk:{}, badges:{}, onboarded:false
   };
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, tipsOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, tipsOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldName="", bldNameTouched=false, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -425,7 +426,7 @@ if(DEMO){
 
 function load(){
   try{var r=localStorage.getItem(KEY); if(r){var o=JSON.parse(r); if(o&&o.plan){
-    if(!o.profile)o.profile={name:""};if(!o.settings)o.settings={rest:90};if(!o.skills)o.skills={};if(!o.skillAsk)o.skillAsk={};
+    if(!o.profile)o.profile={name:""};if(!o.settings)o.settings={rest:90};if(!o.skills)o.skills={};if(!o.skillAsk)o.skillAsk={};if(!o.badges)o.badges={};
     if(o.onboarded===undefined)o.onboarded=!!((o.sessions&&o.sessions.length)||(o.weights&&o.weights.length));
     return o;}}}catch(e){}
   return defaults();
@@ -658,6 +659,7 @@ function finishSession(){
   wrap={type:t,sets:count,wk:weekSessions(),sugg:sugg,line:rankAfter!==rankBefore?"":(weekSessions()===goalSessions()?(goalSessions()===3?WEEK_LINE:"Weekdoel gehaald. Deze week is van jou."):pick(SESSION_LINES))};
   tab="cards";drawn=null;render();window.scrollTo(0,0);
   if(rankAfter!==rankBefore)setTimeout(function(){levelUp(rankNew);},400);
+  setTimeout(function(){checkBadges();},900);
 }
 function runStart(){
   var t=curType();ensureDraft(t);if(!S.draft.skip)S.draft.skip={};
@@ -928,19 +930,40 @@ function viewProgress(){
   var wn=S.weights.filter(function(w){return parseYmd(w.date).getTime()>=ws;}).length;
   var goals=[[goalSessions()+" sessies",n,goalSessions()],["1 bonuskaart",cw,1],["4 weigh-ins",wn,4]];
   var pct=Math.round(goals.reduce(function(a,g){return a+Math.min(1,g[1]/g[2]);},0)/goals.length*100);
-  var uniq=DECK.filter(function(c){return S.cards[c.id];}).length;
   var N=20,lit=Math.round(pct/100*N),segs="";
   for(var i=0;i<N;i++)segs+='<path d="'+ringArc(i,N,48)+'" fill="none" stroke="'+(i<lit?"var(--accent)":"rgba(255,255,255,.1)")+'" stroke-width="10"/>';
   var ring='<svg viewBox="0 0 120 120" role="img" aria-label="'+pct+' procent van je weekdoelen">'+segs+
     '<text x="60" y="64" text-anchor="middle" style="font:700 26px Figtree;fill:var(--ink)">'+pct+'%</text>'+
     '<text x="60" y="80" text-anchor="middle" style="font:500 10px Figtree;fill:var(--muted)">Weekdoelen</text></svg>';
-  var wk3=Object.keys(weekCounts()).some(function(k){return weekCounts()[k]>=3;});
-  var B=[["first","Eerste sessie",S.sessions.length>=1,"1 sessie"],["five","Vijf keer raak",S.sessions.length>=5,Math.min(5,S.sessions.length)+"/5 sessies"],["week","Consistentie-koning",wk3,"3 sessies in een week"],["cards","Kaartenjager",uniq>=6,Math.min(6,uniq)+"/6 kaarten"]];
+  var B=badgeList();
   var GOALS='<h3 style="text-align:left;margin:18px 0 4px">Wekelijkse doelen</h3><ul class="list goals">'+
     goals.map(function(g){var ok=g[1]>=g[2];return '<li class="'+(ok?"ok":"")+'"><span class="ck">'+(ok?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><span>'+g[0]+'</span><span class="n">'+Math.min(g[1],g[2])+'/'+g[2]+'</span></li>';}).join("")+'</ul>';
   var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel prog"><div class="ringwrap">'+ring+'</div>'+GOALS+'</div>'+
-    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){return '<div class="badge'+(b[2]?"":" off")+'" aria-label="'+b[1]+(b[2]?", behaald":", nog niet behaald, "+b[3])+'">'+medal(b[0],b[2])+b[1]+(b[2]?'':'<small>'+b[3]+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel()+historyPanel();
+    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){var got=S.badges&&S.badges[b.id]!==undefined||b.ok,dt=S.badges&&S.badges[b.id];return '<div class="badge'+(got?"":" off")+'" aria-label="'+b.name+(got?", behaald":", nog niet behaald, "+b.crit)+'">'+medal(b.id,got)+b.name+(got?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>'+b.crit+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel()+historyPanel();
   return h;
+}
+var BADGE_LINES={first:"Eerste sessie in de pocket. Dit is pas het begin.",five:"Vijf keer raak. Jij hebt de smaak te pakken.",week:"Drie sessies in één week. Dat noem ik consistent, koning.",cards:"Zes kaarten verzameld. De kaartenjager heeft weer toegeslagen."};
+function badgeList(){
+  var n=S.sessions.length,uniq=DECK.filter(function(c){return S.cards[c.id];}).length,wk=weekCounts();
+  var wk3=Object.keys(wk).some(function(k){return wk[k]>=3;});
+  return [{id:"first",name:"Eerste sessie",crit:"1 sessie",ok:n>=1},{id:"five",name:"Vijf keer raak",crit:Math.min(5,n)+"/5 sessies",ok:n>=5},{id:"week",name:"Consistentie-koning",crit:"3 sessies in een week",ok:wk3},{id:"cards",name:"Kaartenjager",crit:Math.min(6,uniq)+"/6 kaarten",ok:uniq>=6}];
+}
+/* een badge blijft behaald; silent = achteraf invullen voor bestaande data, zonder viering en zonder datum */
+function checkBadges(silent){
+  var nw=[];S.badges=S.badges||{};
+  badgeList().forEach(function(b){if(b.ok&&S.badges[b.id]===undefined){S.badges[b.id]=silent?"":today();nw.push(b);}});
+  if(nw.length){save();if(!silent)badgeUp(nw);}
+  return nw;
+}
+function badgeUp(list){
+  if(document.querySelector(".lvl")){setTimeout(function(){badgeUp(list);},700);return;}
+  var b=list[0],o=document.createElement("div");o.className="lvl";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","bdg-h");
+  o.innerHTML='<div class="box"><div class="bigmedal">'+medal(b.id,true)+'</div><h2 id="bdg-h">Nieuwe badge!</h2><p><b style="color:var(--accent)">'+esc(b.name)+'</b></p><p class="muted" style="font-size:15px;margin:-10px 0 18px">'+esc(b.crit.replace(/^\d+\/\d+ /,function(m){return m.split("/")[1];}))+'</p>'+levBubble(BADGE_LINES[b.id])+'<button class="btn" id="bdg-ok" style="margin-top:20px">Door</button></div>';
+  document.body.appendChild(o);confetti();
+  var ok=document.getElementById("bdg-ok");
+  function close(){o.remove();document.removeEventListener("keydown",esc3);if(list.length>1)badgeUp(list.slice(1));}
+  function esc3(e){if(e.key==="Escape")close();}
+  document.addEventListener("keydown",esc3);ok.addEventListener("click",close);ok.focus();
 }
 function levelUp(r){
   var o=document.createElement("div");o.className="lvl";
@@ -952,16 +975,17 @@ function levelUp(r){
   function esc2(e){if(e.key==="Escape")close();}
   document.addEventListener("keydown",esc2);ok.addEventListener("click",close);ok.focus();
 }
-function snapB(){return JSON.stringify({b:bld,t:bldType,p:bldProg});}
-function restoreB(sn){var o=JSON.parse(sn);bld=o.b;bldType=o.t;bldProg=o.p;bldLib=false;tab="today";detail=null;render();}
+function snapB(){return JSON.stringify({b:bld,t:bldType,p:bldProg,n:bldName,nt:bldNameTouched});}
+function restoreB(sn){var o=JSON.parse(sn);bld=o.b;bldType=o.t;bldProg=o.p;bldName=o.n||progName();bldNameTouched=!!o.nt;bldLib=false;tab="today";detail=null;render();}
 function dropBuilder(){
   if(!bld)return;
-  if(JSON.stringify(bld)!==JSON.stringify(S.plan)){var sn=snapB();toast("Wijzigingen weggegooid",function(){restoreB(sn);});}
+  if(JSON.stringify(bld)!==JSON.stringify(S.plan)||bldName.trim()!==progName()){var sn=snapB();toast("Wijzigingen weggegooid",function(){restoreB(sn);});}
   bld=null;
 }
 function viewBuilder(){
   var list=bld[bldType],h='<button class="backbtn" data-act="bcancel"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
   h+='<h2>Programma aanpassen</h2><p class="muted" style="margin:4px 0 16px">Kies een programma, voeg oefeningen toe uit de bibliotheek of pas aan. Pas bij Opslaan wordt je plan vervangen.</p>';
+  h+='<label for="progname" style="margin:0 0 6px">Naam van je programma</label><input id="progname" type="text" data-f="progname" maxlength="24" placeholder="Bijvoorbeeld Zomerprogramma" value="'+esc(bldName)+'" style="margin-bottom:20px">';
   h+='<h3 style="margin:0 0 8px">Programma\'s</h3><div class="pgms">'+PROGRAMS.map(function(g,i){
     return '<button class="pgm" data-act="bprog" data-v="'+i+'" aria-pressed="'+(bldProg===i)+'"><b>'+g.n+'</b><span>'+g.d+'</span></button>';
   }).join("")+'</div>';
@@ -1074,7 +1098,7 @@ function opts(key,list,cur){
 function viewProfile(){
   if(tipsOpen)return viewTips();
   var c=cfg(),r=rankObj(),nm=(S.profile&&S.profile.name)||"";
-  var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+'<div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+'</div></div></div><p class="muted" style="margin-top:12px;font-size:14px">Programma: '+esc(progName())+'</p></div>'+
+  var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+'<div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+' &middot; '+esc(progName())+'</div></div></div></div>'+
     '<h3 style="margin:20px 2px 10px">Avatar</h3><div class="panel">'+avatarPicker("avatar",avatarId())+'</div>';
   h+='<h3 style="margin:20px 2px 10px">Gewicht</h3>'+viewWeight().replace('<h2>Weigh-in</h2>','<h3 style="margin-bottom:4px">Weigh-in</h3>');
   h+='<h3 style="margin:20px 2px 10px">Lev</h3><div class="panel xlist"><button class="xrow" data-act="tips"><span class="xt">Tips van Lev</span><span class="xa">opwarmen, rust, techniek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-4px"><path d="M9 5l7 7-7 7"/></svg></span></button></div>';
@@ -1155,10 +1179,10 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="open"){detail=+b.getAttribute("data-i");try{history.pushState({lu:"d"},"");}catch(e){}render();window.scrollTo(0,0);return;}
   if(act==="close"){stopTimer();if(history.state&&history.state.lu==="d"){history.back();return;}detail=null;render();return;}
   if(act==="tstart"){runTimer(+v);return;}
-  if(act==="edit"){detail=null;bld=JSON.parse(JSON.stringify(S.plan));bldType=S.draft?S.draft.type:nextType();bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}
+  if(act==="edit"){detail=null;bld=JSON.parse(JSON.stringify(S.plan));bldType=S.draft?S.draft.type:nextType();bldLib=false;bldProg=-1;bldName=progName();bldNameTouched=PROGRAMS.every(function(g){return g.n!==bldName;})&&bldName!=="Eigen programma";render();window.scrollTo(0,0);return;}
   if(act==="bcancel"){dropBuilder();render();return;}
   if(act==="bty"){bldType=v;render();return;}
-  if(act==="bprog"){var g=PROGRAMS[+v],sn=snapB();bld={A:g.A.map(function(id){return entryFrom(cardById(id));}),B:g.B.map(function(id){return entryFrom(cardById(id));})};bldProg=+v;render();toast("Programma "+g.n+" geladen",function(){restoreB(sn);});return;}
+  if(act==="bprog"){var g=PROGRAMS[+v],sn=snapB();bld={A:g.A.map(function(id){return entryFrom(cardById(id));}),B:g.B.map(function(id){return entryFrom(cardById(id));})};bldProg=+v;if(!bldNameTouched)bldName=g.n;render();toast("Programma "+g.n+" geladen",function(){restoreB(sn);});return;}
   if(act==="bstep"){var e1=bld[bldType][+b.getAttribute("data-i")];e1.sets=Math.min(10,Math.max(1,e1.sets+(+v)));bldProg=-1;render();return;}
   if(act==="bmove"){var ls=bld[bldType],i1=+b.getAttribute("data-i"),j1=i1+(+v);if(j1<0||j1>=ls.length)return;var t1=ls[i1];ls[i1]=ls[j1];ls[j1]=t1;render();return;}
   if(act==="bdel"){var sn2=snapB();bld[bldType].splice(+b.getAttribute("data-i"),1);bldProg=-1;render();toast("Oefening verwijderd",function(){restoreB(sn2);});return;}
@@ -1168,7 +1192,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="bown"){var nm=document.getElementById("own").value.trim();if(!nm){toast("Geef de oefening een naam");return;}bld[bldType].push({n:nm,sets:3,reps:"8"});render();return;}
   if(act==="bsave"){
     if(!bld.A.length||!bld.B.length){toast("Beide sessies hebben minstens één oefening nodig");return;}
-    S.plan={A:bld.A,B:bld.B};S.program=bldProg>=0?PROGRAMS[bldProg].n:"Eigen programma";S.draft=null;save();bld=null;toast("Plan opgeslagen");render();window.scrollTo(0,0);return;
+    S.plan={A:bld.A,B:bld.B};S.program=bldName.trim().slice(0,24)||(bldProg>=0?PROGRAMS[bldProg].n:"Eigen programma");S.draft=null;save();bld=null;toast("Plan opgeslagen");render();window.scrollTo(0,0);return;
   }
   if(act==="level"){drawLevel=+v;drawn=null;render();return;}
   if(act==="draw"){
@@ -1186,7 +1210,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="done"){
     if(!drawn)return;
     S.cards[drawn.id]=(S.cards[drawn.id]||0)+1;(S.cardLog=S.cardLog||[]).push(today());save();
-    var again=S.cards[drawn.id]>1;toast(pick(CARD_LINES)+(again?" ("+S.cards[drawn.id]+"e keer)":""));wrap=null;drawn=null;render();return;
+    var again=S.cards[drawn.id]>1;toast(pick(CARD_LINES)+(again?" ("+S.cards[drawn.id]+"e keer)":""));wrap=null;drawn=null;render();setTimeout(function(){checkBadges();},500);return;
   }
 });
 window.addEventListener("popstate",function(){
@@ -1203,6 +1227,7 @@ document.getElementById("app").addEventListener("change",function(ev){
       }catch(e){toast("Dit is geen Lever-up back-up");}
     };rd.readAsText(f.files[0]);return;
   }
+  if(f&&f.matches&&f.matches("[data-f=progname]")){if(bld){bldName=f.value.trim().slice(0,24);bldNameTouched=true;}return;}
   if(f&&f.matches&&f.matches("[data-f=name]")){S.profile=S.profile||{};S.profile.name=f.value.trim().slice(0,20);save();toast("Naam opgeslagen");return;}if(!bld||!f.matches||!f.matches("[data-f=reps]"))return;
   var v=f.value.trim().toLowerCase().replace(/\s+/g,"");
   if(!/^\d{1,3}s?$/.test(v)||+v.replace("s","")<1){toast("Gebruik een getal, of een tijd zoals 20s");f.value=bld[bldType][+f.getAttribute("data-i")].reps;return;}
@@ -1270,6 +1295,7 @@ render();
 setTimeout(initDb,0);
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+if(!/[?&]nobadges/.test(location.search))checkBadges(true);
 if(/demo=levelup/.test(location.search))setTimeout(function(){levelUp(RANKS[1]);},500);
 })();
 </script>
