@@ -57,3 +57,12 @@ Eén regel per rust, willekeurig, naast Lev:
 - "Goed bezig, maatje."
 - "Even rust is ook training."
 - "Je doet het netjes. Echt waar."
+
+## Vaardigheden
+
+- Lev vraagt na het afronden (als je een oefening drie sessies achter elkaar volledig deed): "<oefening> gaat lekker. Beheers je hem nu?" met de knoppen "Ja, beheerst" en "Nog niet".
+- Na "Beheerst" (willekeurig): "Beheerst! Dat noem ik vooruitgang." / "Weer een vaardigheid van de lijst. Netjes." / "Zwaartekracht verliest weer een punt."
+
+## Hoe Lev praat in de app (vaste regel)
+
+Alles wat Lev zegt staat cursief tussen aanhalingstekens, zonder zijn naam erbij. Zijn gezicht staat er altijd bij: als spraakballon (tips, aanwijzingen, rangquote, afrondregel, vraag over beheersen) of groot in beeld (Level up, rustscherm).

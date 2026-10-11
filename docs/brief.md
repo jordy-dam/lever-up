@@ -30,7 +30,7 @@ Aanname: een statische webapp (HTML, CSS en JS, eventueel Vite) zonder backend, 
 - Sessie A en B wisselen af, 3 sessies per week.
 - Gewicht: dagelijks wegen, getoond als weekgemiddelde (week begint op maandag). Het verschil met vorige week mag getoond worden, maar de app maakt daar geen oordeel over.
 - Rusttimer van 90 seconden na elke set.
-- Rangen (hernoemd 2026-10-11, zie docs/lev-teksten.md; oorspronkelijk Kersverse hanger, Ringkind, Ringklimmer, Ringbaas, Ringleader): 0 sessies "Groentje" (Zwaartekracht Groentje), 3 "Veertje" (Stalen Veertje), 9 "Bar Baas", 18 "Lucht Ninja", 36 "Legende" (Anti-Zwaartekracht Legende). Bij een nieuwe rang verschijnt een "Level up!"-scherm.
+- Rangen (hernoemd 2026-10-11, zie docs/lev-teksten.md; oorspronkelijk Kersverse hanger, Ringkind, Ringklimmer, Ringbaas, Ringleader): 0 sessies "Groentje" (Zwaartekracht Groentje), 3 "Veertje" (Stalen Veertje), 9 "Bar Baas", 18 "Lucht Ninja", 36 "Legende" (Anti-Zwaartekracht Legende). **Gewijzigd 2026-10-11:** een rang vraagt sessies én beheerste oefeningen: Veertje 3 en 2, Bar Baas 9 en 6, Lucht Ninja 18 en 12, Legende 36 en 18 (van de 24 oefeningen). Bij een nieuwe rang verschijnt een "Level up!"-scherm.
 - Weekdoelen: 3 sessies, 1 bonuskaart, 4 weigh-ins. Het percentage in de ring is het gemiddelde van die drie.
 - Badges nu: Eerste sessie, Vijf keer raak (5 sessies), Consistentie-koning (3 sessies in een week), Kaartenjager (6 unieke kaarten). Uitbreiden mag.
 

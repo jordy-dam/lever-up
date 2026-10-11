@@ -163,9 +163,6 @@ svg text{font-family:var(--body);fill:var(--muted);font-size:10px}
 .lvl h2{font-size:44px;font-weight:800;margin:10px 0 6px}
 .lvl p{margin-bottom:20px;font-size:18px}
 .lvl p.q{font-size:16px;color:var(--muted);font-style:italic;margin:-6px 0 22px}
-.lvl p.q small{display:block;margin-top:6px;font-style:normal;font-weight:700;color:var(--accent);font-size:13px}
-.quote{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;font-style:italic}
-.quote small{display:block;margin-top:4px;font-style:normal;font-weight:700;color:var(--accent)}
 
 .err{color:#ffb4a8;font-weight:600;margin-top:8px}
 input[aria-invalid="true"]{border-color:#ff8a7a}
@@ -254,7 +251,6 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 .restnum{font-family:var(--display);font-size:44px;font-weight:var(--dw);font-variant-numeric:tabular-nums;line-height:1}
 .restq{color:var(--muted);font-style:italic;max-width:300px;margin:0}
-.restq small{display:block;margin-top:4px;font-style:normal;font-weight:700;color:var(--accent);font-size:13px}
 .onb{display:flex;flex-direction:column;gap:16px;min-height:calc(100vh - 28px);justify-content:center;text-align:center;padding:12px 0 24px}
 .onb h1{font-size:28px}
 .onb .how{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:12px}
@@ -285,9 +281,8 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .avpick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .lev{display:flex;align-items:flex-end;gap:12px;width:100%;text-align:left}
 .levf{width:52px;height:52px;border:2px solid var(--accent)}
-.lbub{position:relative;flex:1;min-width:0;background:var(--card);border:var(--ew) solid var(--edge);border-radius:var(--r) var(--r) var(--r) 4px;padding:10px 14px;font-size:14px;line-height:1.4}
+.lbub{position:relative;flex:1;min-width:0;background:var(--card);border:var(--ew) solid var(--edge);border-radius:var(--r) var(--r) var(--r) 4px;padding:10px 14px;font-size:14px;line-height:1.4;font-style:italic}
 .lbub::before{content:"";position:absolute;left:-6px;bottom:14px;width:10px;height:10px;background:var(--card);border-left:var(--ew) solid var(--edge);border-bottom:var(--ew) solid var(--edge);transform:rotate(45deg)}
-.lbub .who{display:block;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:2px}
 .lev.big{align-items:center;gap:14px}
 .lev.big .levf{width:84px;height:84px}
 .lev.big .lbub{font-size:18px;line-height:1.4;padding:16px 18px;border-radius:var(--r)}
@@ -298,6 +293,16 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .tipmid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 0}
 .tipbot{padding-top:12px}
 .tipcat{text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.rreq{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.rreq .rbar{margin:4px 0 0}
+.seg.mini{margin:0;padding:3px}
+.seg.mini button{min-height:40px;font-size:13px}
+.skrow{padding:14px 0;border-top:1px solid var(--line)}
+.skrow:first-child{border-top:0;padding-top:0}
+.skrow:last-child{padding-bottom:0}
+.skrow b{display:block;font-weight:600}
+.skrow span{display:block;color:var(--muted);font-size:13px;margin:2px 0 10px}
+.sl .lv i.half{background:linear-gradient(90deg,var(--accent) 50%,var(--tint) 50%)}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -365,11 +370,11 @@ var PROGRAMS=[
  {n:"Gevorderd",d:"Niveau 3, 4 oefeningen per sessie",A:["p3a","t3a","c3a","l3a"],B:["p3b","t3b","c3b","l3b"]}
 ];
 var RANKS=[
- [0,"Groentje","Zwaartekracht Groentje","Iedereen begint op de grond, maatje. Zwaartekracht is nu nog je vijand, maar straks je beste vriend."],
- [3,"Veertje","Stalen Veertje","Kijk jou nou, je wordt al lichter! Blijf trekken, we zijn pas net begonnen."],
- [9,"Bar Baas","Bar Baas","BAM! Je trekt jezelf niet meer op, je lanceert jezelf over die stang heen."],
- [18,"Lucht Ninja","Lucht Ninja","Wetten van de fysica? Gelden blijkbaar niet voor jou. Horizontaal alsof het niks is."],
- [36,"Legende","Anti-Zwaartekracht Legende","Ik heb je alles geleerd wat ik weet, en nu vlieg je gewoon. Zwaartekracht is een illusie."]
+ [0,"Groentje","Zwaartekracht Groentje","Iedereen begint op de grond, maatje. Zwaartekracht is nu nog je vijand, maar straks je beste vriend.",0],
+ [3,"Veertje","Stalen Veertje","Kijk jou nou, je wordt al lichter! Blijf trekken, we zijn pas net begonnen.",2],
+ [9,"Bar Baas","Bar Baas","BAM! Je trekt jezelf niet meer op, je lanceert jezelf over die stang heen.",6],
+ [18,"Lucht Ninja","Lucht Ninja","Wetten van de fysica? Gelden blijkbaar niet voor jou. Horizontaal alsof het niks is.",12],
+ [36,"Legende","Anti-Zwaartekracht Legende","Ik heb je alles geleerd wat ik weet, en nu vlieg je gewoon. Zwaartekracht is een illusie.",18]
 ];
 var DECK=[
  {id:"p1a",s:"push",l:1,n:"Incline push-ups",a:"10 reps"},{id:"p1b",s:"push",l:1,n:"Langzame wall push-ups",a:"10 reps"},
@@ -393,12 +398,12 @@ function defaults(){
       B:[{n:"Ring rows, voeten verhoogd",sets:3,reps:"8"},{n:"Split squats",sets:3,reps:"8"},{n:"Tuck L-sit op parallettes",sets:3,reps:"10s"},{n:"Dead bug",sets:3,reps:"10"}]
     },
     sessions:[], weights:[], cards:{}, draft:null,
-    profile:{name:""}, settings:{rest:90}, onboarded:false
+    profile:{name:""}, settings:{rest:90}, skills:{}, skillAsk:{}, onboarded:false
   };
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, tipsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, tipsOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -407,12 +412,14 @@ if(DEMO){
   S=defaults();S.onboarded=!/[?&]onboard/.test(location.search);S.profile.name="Jordy";var rq=/[?&]rest=(\d+)/.exec(location.search);if(rq)S.settings.rest=+rq[1];
   S.weights=[[35,82.6],[34,82.4],[28,82.1],[27,82.0],[21,81.7],[20,81.8],[14,81.3],[13,81.4],[7,81.0],[6,80.9],[0,80.6]].map(function(w){return {date:dd(w[0]),kg:w[1]};});
   S.sessions=[35,31,28,24,21,17,14,10,7,3,1,0].map(function(n,i){return {date:dd(n),type:i%2?"B":"A",sets:9};});
-  S.cards={p1a:2,p2b:1,t1a:1,c1b:3,l1a:1,p3a:1,t2a:1,l2b:1};S.cardLog=[dd(0)];
+  S.cards={p1a:2,p2b:1,t1a:1,c1b:3,l1a:1,p3a:1,t2a:1,l2b:1};
+  S.skills={p1a:"beheerst",p1b:"beheerst",t1a:"beheerst",t1b:"beheerst",c1a:"beheerst",c1b:"beheerst",l1a:"bezig",p2a:"bezig"};
+  S.sessions.slice(-3).forEach(function(x){x.ex=[{n:"Pike push-ups",d:3,s:3}];});S.cardLog=[dd(0)];
 }
 
 function load(){
   try{var r=localStorage.getItem(KEY); if(r){var o=JSON.parse(r); if(o&&o.plan){
-    if(!o.profile)o.profile={name:""};if(!o.settings)o.settings={rest:90};
+    if(!o.profile)o.profile={name:""};if(!o.settings)o.settings={rest:90};if(!o.skills)o.skills={};if(!o.skillAsk)o.skillAsk={};
     if(o.onboarded===undefined)o.onboarded=!!((o.sessions&&o.sessions.length)||(o.weights&&o.weights.length));
     return o;}}}catch(e){}
   return defaults();
@@ -470,7 +477,13 @@ function toast(t,undo){
 }
 function nextType(){return !S.sessions.length?"A":(S.sessions[S.sessions.length-1].type==="A"?"B":"A");}
 function weekSessions(){var ws=weekStart(new Date()).getTime();return S.sessions.filter(function(s){return parseYmd(s.date).getTime()>=ws;}).length;}
-function rankObj(){var n=S.sessions.length,r=RANKS[0];RANKS.forEach(function(x){if(n>=x[0])r=x;});return r;}
+function skills(){return S.skills||(S.skills={});}
+function masteredCount(){var c=0,o=skills();for(var k in o)if(o[k]==="beheerst")c++;return c;}
+function rankMet(r){return S.sessions.length>=r[0]&&masteredCount()>=r[4];}
+function nextRank(){return RANKS.filter(function(r){return !rankMet(r);})[0]||null;}
+function rankObj(){var r=RANKS[0];RANKS.forEach(function(x){if(rankMet(x))r=x;});return r;}
+function rankIdx(){return RANKS.indexOf(rankObj());}
+function afterRank(beforeIdx){if(rankIdx()>beforeIdx){var r=rankObj();setTimeout(function(){levelUp(r);},500);}}
 function rankName(){return rankObj()[2];}
 function weeklyAverages(){
   var map={};
@@ -550,12 +563,31 @@ function avatarPicker(act,cur){
 /* tips van Lev (docs/lev-tips.md): een aanwijzing per kaart, en algemene tips in Profiel */
 var CUES={"p1a": "Één rechte lijn, billen niet omhoog. Hoe lager de bank, hoe zwaarder het wordt.", "p1b": "Tel rustig tot drie omlaag. Ellebogen schuin naar achter, niet wijd.", "p2a": "Span je buik alsof iemand je een por geeft, en zak met borst en neus tegelijk.", "p2b": "Heupen hoog, hoofd tussen je armen. Duw omhoog alsof je door het plafond wilt.", "p3a": "Polsen recht onder je schouders. Zak diep, maar blijf stevig in je schouders.", "p3b": "Ringen dicht bij je lijf en stil. Wiebelen betekent: even makkelijker maken.", "t1a": "Trek eerst je schouderbladen naar elkaar, dan pas met je ellebogen.", "t1b": "Armen blijven recht, je trekt alleen je schouders omlaag. Kleine beweging, groot effect.", "t2a": "Lichaam als een plank, borst naar de ringen, ellebogen langs je ribben.", "t2b": "Spring omhoog en zak in vijf tellen. Niet vallen onderaan.", "t3a": "Begin elke trek met je schouders omlaag. Kin over de stang, nek niet vooruit.", "t3b": "Hoger is zwaarder. Blijf recht: je heupen laten zakken telt niet.", "c1a": "Onderrug blijft op de grond. Langzaam, en adem uit als je strekt.", "c1b": "Ellebogen onder je schouders, billen in lijn. Liever 20 seconden netjes dan 60 slap.", "c2a": "Onderrug plat, kin naar je borst. Lukt het niet? Buig je knieën iets.", "c2b": "Niet zwaaien. Til je knieën met je buik, niet met vaart.", "c3a": "Duw je schouders weg van je oren en trek je knieën naar je borst. Kort beginnen is prima.", "c3b": "Blijf één stijve boog en schommel. Verlies je de boog? Dan is het genoeg.", "l1a": "Knieën volgen je tenen, borst omhoog. Zak tot het goed voelt, niet verder.", "l1b": "Duw door je hielen en knijp boven even je billen samen.", "l2a": "Stap ver genoeg naar voren en zak recht omlaag, niet vooroverbuigen.", "l2b": "Rug plat tegen de muur, knieën boven je enkels. Blijf rustig doorademen.", "l3a": "Zak langzaam naar de bank en kom zonder zwaaien weer omhoog. Arm naar voren houdt je in balans.", "l3b": "Land zacht op je voeten met licht gebogen knieën. Slordig geworden? Dan stop je."};
 var TIPBLOCKS=[{"t": "Opwarmen", "l": ["Rol een minuut je polsen en schouders voor je begint. Je gewrichten bedanken je later.", "Doe de eerste ronde van een oefening licht. Dat is je eigen warming-up.", "Even hangen aan de stang of de ringen maakt je schouders los."]}, {"t": "Rust en herstel", "l": ["Spieren groeien in je rust, niet tijdens het trainen. Rust is ook training.", "Zet een rustdag tussen je sessies, bijvoorbeeld A, rust, B, rust, A.", "Slaap meetellen. Echt waar."]}, {"t": "Techniek", "l": ["Netjes gaat voor veel. Zakt je vorm in, dan is het genoeg voor die ronde.", "Adem uit als het zwaar wordt, niet je adem inhouden.", "Neem af en toe een filmpje van jezelf. Je ziet meer dan je voelt."]}, {"t": "Opbouwen", "l": ["Voelt alles makkelijk? Pak een kaart van het volgende niveau.", "Eerst een herhaling erbij, dan een ronde erbij, dan pas een moeilijkere variant.", "Vergelijk jezelf met vorige week, niet met een ander."]}, {"t": "Luister naar je lijf", "l": ["Spierbrand is oké. Pijn in een gewricht is een stopsignaal.", "Heb je een blessure of klachten? Vraag het eerst aan een arts of fysiotherapeut.", "Een slokje water tussen de rondes helpt."]}];
-function cueFor(name){
-  var n=String(name).toLowerCase(),c=DECK.filter(function(x){return x.n.toLowerCase()===n;})[0]||DECK.filter(function(x){return x.n.toLowerCase().indexOf(n)===0;})[0];
-  return c?CUES[c.id]:"";
+function cardOf(name){
+  var n=String(name).toLowerCase();
+  return DECK.filter(function(x){return x.n.toLowerCase()===n;})[0]||DECK.filter(function(x){return x.n.toLowerCase().indexOf(n)===0;})[0]||null;
+}
+function cueFor(name){var c=cardOf(name);return c?CUES[c.id]:"";}
+var SKILL_LINES=["Beheerst! Dat noem ik vooruitgang.","Weer een vaardigheid van de lijst. Netjes.","Zwaartekracht verliest weer een punt."];
+var STATUS=[["nieuw","Nieuw"],["bezig","Bezig"],["beheerst","Beheerst"]];
+function goalText(c){var e=entryFrom(c),t=/^(\d+)s$/.exec(e.reps);return "Doel: "+e.sets+" \u00d7 "+(t?t[1]+" sec":e.reps+" reps"+(e.per?" per "+e.per:""))+", netjes";}
+function skillSeg(id,cur){
+  return '<div class="seg mini" role="group" aria-label="Status">'+STATUS.map(function(o){return '<button data-act="skill" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>';}).join("")+'</div>';
+}
+function viewSkills(){
+  var h='<button class="backbtn" data-act="skillsclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
+  h+='<h2 style="margin:0 2px 4px">Vaardigheden</h2><p class="muted" style="margin:0 2px 16px">Beheers je een oefening? Zet hem op Beheerst. Voor een hogere rang heb je sessies én beheerste oefeningen nodig ('+masteredCount()+' nu).</p>';
+  Object.keys(SUITS).forEach(function(k){
+    h+='<h3 style="margin:16px 2px 10px">'+SUITS[k]+'</h3><div class="panel">';
+    DECK.filter(function(c){return c.s===k;}).sort(function(a,b){return a.l-b.l;}).forEach(function(c){
+      h+='<div class="skrow"><b>'+esc(c.n)+'</b><span>Niveau '+c.l+' &middot; '+goalText(c)+'</span>'+skillSeg(c.id,skills()[c.id]||"nieuw")+'</div>';
+    });
+    h+='</div>';
+  });
+  return h;
 }
 function levBubble(text,big){
-  return '<div class="lev'+(big?' big':'')+'"><div class="face levf"><img src="assets/lev/avatar.webp" alt=""></div><div class="lbub"><b class="who">Lev</b>'+esc(text)+'</div></div>';
+  return '<div class="lev'+(big?' big':'')+'"><div class="face levf"><img src="assets/lev/avatar.webp" alt=""></div><div class="lbub">&ldquo;'+esc(text)+'&rdquo;</div></div>';
 }
 function levCue(name){var c=cueFor(name);return c?levBubble(c):'';}
 var ALLTIPS=[];TIPBLOCKS.forEach(function(b){b.l.forEach(function(x){ALLTIPS.push({c:b.t,t:x});});});
@@ -586,13 +618,31 @@ function stopRunTimers(){
   clearInterval(runRest.iv);clearInterval(runT.iv);runRest.iv=0;runT.iv=0;runT.state="idle";
   try{if(runT.wl){runT.wl.release();runT.wl=null;}}catch(e){}
 }
+function findSuggestion(exlog){
+  var ask=S.skillAsk||(S.skillAsk={});
+  for(var q=0;q<exlog.length;q++){
+    var x=exlog[q];if(x.d<x.s)continue;var c=cardOf(x.n);if(!c||skills()[c.id]==="beheerst")continue;
+    if(ask[c.id]!==undefined&&S.sessions.length-ask[c.id]<3)continue;
+    var streak=0;
+    for(var i=S.sessions.length-1;i>=0;i--){
+      var hit=(S.sessions[i].ex||[]).filter(function(e){var cc=cardOf(e.n);return cc&&cc.id===c.id;})[0];
+      if(!hit)continue;if(hit.d>=hit.s)streak++;else break;
+    }
+    if(streak>=3)return {id:c.id,n:c.n};
+  }
+  return null;
+}
 function finishSession(){
   var t=curType(),count=0;
   if(S.draft)Object.keys(S.draft.done).forEach(function(k){S.draft.done[k].forEach(function(x){if(x)count++;});});
   if(!count){toast("Tik eerst minstens één ronde aan");return;}
   stopRunTimers();running=false;
-  var rankBefore=rankName();S.sessions.push({date:today(),type:t,sets:count});S.draft=null;save();var rankAfter=rankName(),rankNew=rankObj();
-  wrap={type:t,sets:count,wk:weekSessions(),line:rankAfter!==rankBefore?"":(weekSessions()===goalSessions()?(goalSessions()===3?WEEK_LINE:"Weekdoel gehaald. Deze week is van jou."):pick(SESSION_LINES))};
+  var plan=S.plan[t]||[],exlog=[];
+  plan.forEach(function(e,i){if(S.draft.skip&&S.draft.skip[i])return;var dn=(S.draft.done[i]||[]).filter(Boolean).length;if(dn>0)exlog.push({n:e.n,d:dn,s:e.sets});});
+  var rankBefore=rankName();S.sessions.push({date:today(),type:t,sets:count,ex:exlog});S.draft=null;
+  exlog.forEach(function(x){var c=cardOf(x.n);if(c&&!skills()[c.id])skills()[c.id]="bezig";});
+  var sugg=findSuggestion(exlog);save();var rankAfter=rankName(),rankNew=rankObj();
+  wrap={type:t,sets:count,wk:weekSessions(),sugg:sugg,line:rankAfter!==rankBefore?"":(weekSessions()===goalSessions()?(goalSessions()===3?WEEK_LINE:"Weekdoel gehaald. Deze week is van jou."):pick(SESSION_LINES))};
   tab="cards";drawn=null;render();window.scrollTo(0,0);
   if(rankAfter!==rankBefore)setTimeout(function(){levelUp(rankNew);},400);
 }
@@ -662,7 +712,7 @@ function viewRun(){
     h+='<div class="restwrap"><div class="ringbox"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--tint)" stroke-width="6"/><circle id="rring" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="326.7" style="stroke-dashoffset:'+off+'"/></svg>'+
       '<div class="face restface"><img src="assets/lev/pose-tired.png" alt="" onerror="this.onerror=null;this.src=\'assets/lev/avatar.webp\'"></div></div>'+
       '<div class="restnum" id="rnum" role="timer" aria-label="Rust, nog '+left+' seconden">'+fmt(left)+'</div>'+
-      '<p class="restq">&ldquo;'+esc(runRest.quote)+'&rdquo;<small>Lev</small></p>'+
+      '<p class="restq">&ldquo;'+esc(runRest.quote)+'&rdquo;</p>'+
       '<p class="nextup">Straks: <b>'+esc(e.n)+'</b>, ronde '+(pos.k+1)+' van '+e.sets+'</p>'+
       '<div class="runact"><div class="row"><button class="btn ghost" data-act="radd30">+30 sec</button><button class="btn" style="flex:1" data-act="rnext">Overslaan</button></div>'+
       (runLast?'<button class="linkbtn" data-act="rundo">Ronde niet gedaan?</button>':'')+'</div></div>';
@@ -773,7 +823,10 @@ function viewDetail(e,type){
     var names=function(a){return a.map(function(k){return MLABEL[k];}).join(", ");};
     h+='<div class="mkey"><p>Primair: '+names(m[0])+'</p><p class="s">Secundair: '+names(m[1])+'</p></div>';
   }
-  h+='</div>'+levCue(e.n).replace('class="lev"','class="lev" style="margin-top:4px"');
+  h+='</div>';
+  var cd=cardOf(e.n);
+  if(cd)h+='<div class="panel"><div class="k" style="color:var(--accent);font-weight:700;font-size:13px;margin-bottom:2px">Vaardigheid</div><p class="muted" style="font-size:14px;margin-bottom:10px">'+goalText(cd)+'</p>'+skillSeg(cd.id,skills()[cd.id]||"nieuw")+'</div>';
+  h+=levCue(e.n).replace('class="lev"','class="lev" style="margin-top:4px"');
   return h;
 }
 var ac=null;
@@ -816,21 +869,22 @@ function ringArc(i,n,r){
   return "M"+P(a0)+" A"+r+" "+r+" 0 0 1 "+P(a1);
 }
 function rankPanel(){
-  var n=S.sessions.length,next=null;RANKS.forEach(function(r){if(!next&&n<r[0])next=r;});
-  var prev=0;RANKS.forEach(function(r){if(n>=r[0])prev=r[0];});
-  var line=next?'Nog '+(next[0]-n)+(next[0]-n===1?' sessie':' sessies')+' tot '+esc(next[2]):'Hoogste rang bereikt';
-  var pct=next?Math.round((n-prev)/(next[0]-prev)*100):100;
+  var n=S.sessions.length,m=masteredCount(),next=nextRank(),bars="",line="Hoogste rang bereikt";
+  if(next){
+    function req(label,have,need){return '<div class="rreq"><span>'+label+' '+Math.min(have,need)+' van '+need+'</span><div class="rbar" role="img" aria-label="'+label+' '+have+' van '+need+'"><i style="width:'+Math.min(100,Math.round(have/need*100))+'%"></i></div></div>';}
+    bars=req("Sessies",n,next[0])+(next[4]?req("Beheerst",m,next[4]):"");line="Op weg naar "+esc(next[2]);
+  }
   var o={},st=streakWeeks(),dots="";S.sessions.forEach(function(x){o[x.date]=1;});
   for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);dots+='<span><i class="'+(o[ymd(d)]?"on":"")+'"></i>'+["Zo","Ma","Di","Wo","Do","Vr","Za"][d.getDay()]+'</span>';}
   return '<div class="panel"><div class="rankbox">'+avatarHtml(avatarId(),"lav")+
-    '<div style="flex:1;min-width:0"><div class="k">Rang</div><h2>'+esc(rankName())+'</h2><div class="rbar" role="img" aria-label="'+pct+' procent naar de volgende rang"><i style="width:'+pct+'%"></i></div><div class="k">'+line+'</div></div></div><p class="quote">&ldquo;'+esc(rankObj()[3])+'&rdquo;<small>Lev</small></p></div>'+
+    '<div style="flex:1;min-width:0"><div class="k">Rang</div><h2>'+esc(rankName())+'</h2>'+bars+'<div class="k" style="margin-top:8px">'+line+'</div></div></div><div style="margin-top:14px">'+levBubble(rankObj()[3])+'</div></div>'+
     '<div class="panel"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg>'+
     '<div><div class="nr">'+st+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(st?(st===1?'week':'weken')+' op rij met 3 sessies':'Haal deze week 3 sessies')+'</div></div></div><div class="week7" role="img" aria-label="Trainingsdagen, laatste 7 dagen">'+dots+'</div></div>';
 }
 function ladderPanel(){
-  var n=S.sessions.length,cur=0;RANKS.forEach(function(r,i){if(n>=r[0])cur=i;});
+  var cur=RANKS.indexOf(rankObj());
   var rows=RANKS.map(function(r,i){
-    var st=i<cur?"done":i===cur?"now":"todo",sub=i===0?"Start":r[0]+" sessies";
+    var st=i<cur?"done":i===cur?"now":"todo",sub=i===0?"Start":r[0]+" sessies &middot; "+r[4]+" beheerst";
     if(st==="now")sub+=" · jij bent hier";
     return '<li class="rung '+st+'"'+(st==="now"?' aria-current="step"':'')+'><span class="dot">'+(st==="done"?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><div><b>'+esc(r[2])+'</b><small>'+sub+'</small></div></li>';
   }).reverse().join("");
@@ -842,17 +896,18 @@ function historyPanel(){
   return '<details class="panel fold"><summary>Laatste sessies<span>'+S.sessions.length+' in totaal</span></summary><ul class="list">'+li+'</ul></details>';
 }
 function suitPanel(){
-  var h='<details class="panel fold"><summary>Opbouw per spiergroep<span>niveau 1 tot 3</span></summary><div class="sl" style="margin-top:14px"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
+  var h='<details class="panel fold"><summary>Opbouw per spiergroep<span>beheersing</span></summary><div class="sl" style="margin-top:14px"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
   Object.keys(SUITS).forEach(function(k){
     var best=0;h+='<b>'+SUITS[k]+'</b>';
     [1,2,3].forEach(function(l){
-      var cs=DECK.filter(function(c){return c.s===k&&c.l===l;}),f=cs.filter(function(c){return S.cards[c.id];}).length;if(f)best=l;
-      h+='<span class="lv" role="img" aria-label="Niveau '+l+': '+f+' van '+cs.length+' kaarten">'+cs.map(function(c,i){return '<i class="'+(i<f?'on':'')+'"></i>';}).join("")+'</span>';
+      var cs=DECK.filter(function(c){return c.s===k&&c.l===l;}),f=cs.filter(function(c){return skills()[c.id]==="beheerst";}).length;if(f)best=l;
+      h+='<span class="lv" role="img" aria-label="Niveau '+l+': '+f+' van '+cs.length+' beheerst">'+cs.map(function(c){var st=skills()[c.id];return '<i class="'+(st==="beheerst"?'on':st==="bezig"?'half':'')+'"></i>';}).join("")+'</span>';
     });
   });
-  return h+'</div><p class="muted" style="font-size:14px;margin-top:12px">Een stip is een kaart die je hebt gedaan.</p></details>';
+  return h+'</div><p class="muted" style="font-size:14px;margin-top:12px">Gevuld is beheerst, half is bezig.</p><button class="btn ghost full" data-act="skills" style="margin-top:12px">Alle vaardigheden</button></details>';
 }
 function viewProgress(){
+  if(skillsOpen)return viewSkills();
   var ws=weekStart(new Date()).getTime();
   var n=weekSessions();
   var cw=(S.cardLog||[]).filter(function(d){return parseYmd(d).getTime()>=ws;}).length;
@@ -876,7 +931,7 @@ function viewProgress(){
 function levelUp(r){
   var o=document.createElement("div");o.className="lvl";
   o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","lvl-h");
-  o.innerHTML='<div class="box"><div class="face hd"><img src="assets/lev/face-cheer.webp" alt=""></div><h2 id="lvl-h">Level up!</h2><p>Nieuwe rang: <b style="color:var(--accent)">'+esc(r[2])+'</b></p><p class="q">&ldquo;'+esc(r[3])+'&rdquo;<small>Lev</small></p><button class="btn lime" id="lvl-ok">Door</button></div>';
+  o.innerHTML='<div class="box"><div class="face hd"><img src="assets/lev/face-cheer.webp" alt=""></div><h2 id="lvl-h">Level up!</h2><p>Nieuwe rang: <b style="color:var(--accent)">'+esc(r[2])+'</b></p><p class="q">&ldquo;'+esc(r[3])+'&rdquo;</p><button class="btn lime" id="lvl-ok">Door</button></div>';
   document.body.appendChild(o);confetti();
   var ok=document.getElementById("lvl-ok");
   function close(){o.remove();document.removeEventListener("keydown",esc2);}
@@ -923,7 +978,7 @@ var SUITKEY={push:"p",pull:"t",core:"c",legs:"l"};
 function viewCards(){
   var cards=DECK.filter(function(c){return c.l===drawLevel;});
   var h="";
-  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,goalSessions())+' van '+goalSessions()+' sessies. Trek je bonuskaart.</p>'+(wrap.line?'<p class="quote">&ldquo;'+esc(wrap.line)+'&rdquo;<small>Lev</small></p>':'')+'</div>';
+  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,goalSessions())+' van '+goalSessions()+' sessies. Trek je bonuskaart.</p>'+(wrap.line?'<div style="margin-top:14px">'+levBubble(wrap.line)+'</div>':'')+(wrap.sugg?'<div style="margin-top:14px">'+levBubble(wrap.sugg.n+' gaat lekker. Beheers je hem nu?')+'<div class="row" style="margin-top:12px"><button class="btn" style="flex:1" data-act="skillyes">Ja, beheerst</button><button class="btn ghost" data-act="skillno">Nog niet</button></div></div>':'')+'</div>';
   h+='<div class="seg" role="group" aria-label="Niveau" style="margin:0 0 4px">'+[1,2,3].map(function(l){return '<button data-act="level" data-v="'+l+'" aria-pressed="'+(drawLevel===l)+'">Niveau '+l+'</button>';}).join("")+'</div>';
   h+='<div class="carousel'+(drawn?' picked':'')+'" id="carousel" role="region" aria-roledescription="carrousel" tabindex="0" aria-label="Kaarten van niveau '+drawLevel+'">'+cards.map(function(c){
     var dots="";for(var i=1;i<=3;i++)dots+='<i'+(i<=c.l?' class="on"':'')+'></i>';
@@ -1042,13 +1097,18 @@ function ensureDraft(type){if(!S.draft||S.draft.type!==type)S.draft={type:type,d
 document.getElementById("app").addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b)return;
   var act=b.getAttribute("data-act"),v=b.getAttribute("data-v");
-  if(act==="tab"){tipsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
+  if(act==="tab"){tipsOpen=false;skillsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
   if(act==="type"){
     if(S.draft&&Object.keys(S.draft.done).length&&S.draft.type!==v&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;
     S.draft={type:v,done:{}};save();render();return;
   }
   if(act==="finish"){finishSession();return;}
   if(act==="tips"){tipsOpen=true;render();window.scrollTo(0,0);return;}
+  if(act==="skills"){skillsOpen=true;render();window.scrollTo(0,0);return;}
+  if(act==="skillsclose"){skillsOpen=false;render();return;}
+  if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx();if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;save();render();toast(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt");afterRank(rb);return;}
+  if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx();skills()[wrap.sugg.id]="beheerst";wrap.sugg=null;save();render();toast(pick(SKILL_LINES));afterRank(rb2);return;}
+  if(act==="skillno"){if(!wrap||!wrap.sugg)return;(S.skillAsk||(S.skillAsk={}))[wrap.sugg.id]=S.sessions.length;wrap.sugg=null;save();render();return;}
   if(act==="tipsclose"){tipsOpen=false;render();return;}
   if(act==="tipnext"){tipIdx=(tipIdx+1)%ALLTIPS.length;render();return;}
   if(act==="tipprev"){tipIdx=(tipIdx-1+ALLTIPS.length)%ALLTIPS.length;render();return;}
