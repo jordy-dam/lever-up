@@ -10,7 +10,7 @@ Eén document voor alle beelden. Alles werkt met **contactbladen**: zes beelden 
 | Spierkaart (voor en achter) | uitgelicht oefeningscherm | klaar | `assets/muscles/` |
 | Avatars (6) | header, profiel | klaar | `assets/avatars/a1..a6.webp` |
 | Rangbeelden (Lev + 5 rangen) | Voortgang, Level up | klaar | `assets/ranks/` |
-| **Lev-poses (6)** | rustscherm, afronden | **volgende** | `assets/lev/pose-*.webp` |
+| **Lev-poses (6)** | rustscherm, afronden | **klaar (2026-10-11)** | `assets/lev/pose-*.webp` |
 | **Oefeningen per soort (24, 4 bladen)** | kaarten, focusscherm, uitgelicht scherm | **volgende** | `assets/cards/<id>.webp` |
 | Begin- en eindposities (8 oefeningen) | wisselend plaatje op het uitgelichte scherm | later | `assets/exercises/` |
 | Badges (4) en app-icoon | Voortgang, telefoon | later | `assets/badges/`, `assets/icons/` |

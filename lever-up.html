@@ -244,10 +244,12 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .nextup b{color:var(--ink);font-weight:600}
 .runact{margin-top:auto;padding-top:16px;width:100%;display:flex;flex-direction:column;gap:6px}
 .runact .row{gap:10px}
-.ringbox{position:relative;width:220px;height:220px;flex:none}
-.ringbox svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-.restface{position:absolute;inset:20px;width:auto;height:auto}
-.restface img{animation:breathe 4s ease-in-out infinite}
+
+.restpic img{object-position:50% 25%}
+.run .hero{width:100%}
+.run .heroin{width:100%;max-width:360px;height:auto}
+.drain{width:100%;max-width:360px;height:8px;border-radius:99px;background:var(--tint);overflow:hidden}
+.drain i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width 1s linear}
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 .restnum{font-family:var(--display);font-size:44px;font-weight:var(--dw);font-variant-numeric:tabular-nums;line-height:1}
 .restq{color:var(--muted);font-style:italic;max-width:300px;margin:0}
@@ -294,7 +296,7 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .seg.sm button{min-height:40px;font-size:13px}
 .skrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
 .skrow:first-child{border-top:0;padding-top:0}
-.skrow:last-child{padding-bottom:0}
+.skrow:last-child{padding-bottom:12px}
 .skrow>div{min-width:0}
 .skrow b{display:block;font-weight:600;font-size:15px;line-height:1.25}
 .skrow span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
@@ -335,7 +337,6 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 @media (prefers-reduced-motion:reduce){
   .kc{transition:none}
   .heroin img+img{animation:none}
-  .restface img{animation:none}
   .sw,.sw i{transition:none}
   .confetti{display:none}
 }
@@ -562,7 +563,7 @@ function confetti(){
 
 /* ================= geleide sessie ================= */
 var REST_LINES=["Adem in, adem uit. Zwaartekracht wacht wel.","Schouders los. Straks weer aan.","Pak even wat water, kampioen.","Goed bezig, maatje.","Even rust is ook training.","Je doet het netjes. Echt waar."];
-var runRest={end:0,total:90,iv:0,quote:""},runT={iv:0,state:"idle",t0:0,wl:null},runLast=null;
+var REST_POSES=["tired","water","stretch"],restPoseN=Math.floor(Math.random()*3),runRest={end:0,total:90,iv:0,quote:"",pose:"tired"},runT={iv:0,state:"idle",t0:0,wl:null},runLast=null;
 function cfg(){return S.settings||(S.settings={rest:90});}
 function goalSessions(){return +cfg().goal||3;}
 function vib(pat){try{if(cfg().haptics===false)return;if(navigator.vibrate)navigator.vibrate(pat||[200,100,200]);}catch(e){}}
@@ -605,11 +606,14 @@ function viewSkills(){
   var h='<button class="backbtn" data-act="skillsclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>';
   h+='<h2 style="margin:0 2px 4px">Vaardigheden</h2><p class="muted" style="margin:0 2px 16px">Beheers je een oefening? Zet hem op Beheerst. Voor een hogere rang heb je sessies én beheerste oefeningen nodig ('+masteredCount()+' nu).</p>';
   Object.keys(SUITS).forEach(function(k){
-    h+='<h3 style="margin:16px 2px 10px">'+SUITS[k]+'</h3><div class="panel">';
-    DECK.filter(function(c){return c.s===k;}).sort(function(a,b){return a.l-b.l;}).forEach(function(c){
-      h+='<div class="skrow"><div><b>'+esc(c.n)+'</b><span>Niveau '+c.l+'</span></div>'+skillSeg(c.id,skills()[c.id]||"nieuw")+'</div>';
+    var cs=DECK.filter(function(c){return c.s===k;}).sort(function(a,b){return a.l-b.l;}),key="sk_"+k,sk=skills();
+    var done=cs.filter(function(c){return sk[c.id]==="beheerst";}).length,busy=cs.some(function(c){return sk[c.id]==="bezig";});
+    var open=profOpen[key]===undefined?busy:profOpen[key];
+    h+='<details class="panel fold" data-fold="'+key+'"'+(open?' open':'')+'><summary>'+SUITS[k]+'<span>'+done+' van '+cs.length+' beheerst</span></summary>';
+    cs.forEach(function(c){
+      h+='<div class="skrow"><div><b>'+esc(c.n)+'</b><span>Niveau '+c.l+'</span></div>'+skillSeg(c.id,sk[c.id]||"nieuw")+'</div>';
     });
-    h+='</div>';
+    h+='</details>';
   });
   return h;
 }
@@ -711,13 +715,13 @@ function completeRound(){
   startRunRest();
 }
 function startRunRest(){
-  audio();stopRunTimers();runPhase="rest";runRest.total=restSecs();runRest.end=Date.now()+runRest.total*1000;runRest.quote=pick(REST_LINES);
+  audio();stopRunTimers();runPhase="rest";runRest.total=restSecs();runRest.end=Date.now()+runRest.total*1000;runRest.quote=pick(REST_LINES);runRest.pose=REST_POSES[restPoseN++%REST_POSES.length];
   render();window.scrollTo(0,0);runRest.iv=setInterval(tickRest,250);
 }
 function tickRest(){
   var left=Math.max(0,Math.ceil((runRest.end-Date.now())/1000)),n=document.getElementById("rnum"),r=document.getElementById("rring");
   if(n){n.textContent=fmt(left);n.setAttribute("aria-label","Rust, nog "+left+" seconden");}
-  if(r)r.style.strokeDashoffset=(326.7*(1-left/runRest.total)).toFixed(1);
+  if(r)r.style.width=(100*left/runRest.total).toFixed(1)+"%";
   if(left<=0)endRest(true);
 }
 function endRest(auto){
@@ -743,8 +747,8 @@ function viewRun(){
     '<div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' rondes gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div>';
   if(runPhase==="rest"){
     var left=Math.max(0,Math.ceil((runRest.end-Date.now())/1000)),off=(326.7*(1-left/runRest.total)).toFixed(1);
-    h+='<div class="restwrap"><div class="ringbox"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--tint)" stroke-width="6"/><circle id="rring" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="326.7" style="stroke-dashoffset:'+off+'"/></svg>'+
-      '<div class="face restface"><img src="assets/lev/pose-tired.webp" alt="" onerror="this.onerror=null;this.src=\'assets/lev/avatar.webp\'"></div></div>'+
+    h+='<div class="restwrap"><div class="hero" aria-hidden="true"><div class="heroin restpic"><img src="assets/lev/pose-'+runRest.pose+'.webp" alt="" onerror="this.onerror=null;this.src=\'assets/lev/avatar.webp\'"></div></div>'+
+      '<div class="drain" role="img" aria-label="Rust loopt af"><i id="rring" style="width:'+(100*left/runRest.total).toFixed(1)+'%"></i></div>'+
       '<div class="restnum" id="rnum" role="timer" aria-label="Rust, nog '+left+' seconden">'+fmt(left)+'</div>'+
       '<p class="restq">&ldquo;'+esc(runRest.quote)+'&rdquo;</p>'+
       '<p class="nextup">Straks: <b>'+esc(e.n)+'</b>, ronde '+(pos.k+1)+' van '+e.sets+'</p>'+
