@@ -289,6 +289,22 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
 .onb .how li{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:var(--ew) solid var(--edge);border-radius:var(--rs);padding:14px}
 .onb .how b{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--display)}
 .onb .how i{font-style:normal;font-weight:700;color:var(--accent)}
+.progline{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:0 2px 12px;font-size:14px}
+.progline b{font-family:var(--display);font-weight:var(--dw);font-size:15px}
+.progline span{color:var(--muted)}
+.xlist{padding:4px 16px}
+.xrow{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;background:none;text-align:left;border-top:1px solid var(--line)}
+.xrow:first-child{border-top:0}
+.xn{width:26px;height:26px;border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+.xn.ok{background:var(--accent);color:var(--accent-ink)}
+.xt{flex:1;min-width:0;font-weight:600}
+.xa{color:var(--muted);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.muscles{color:var(--muted);font-size:14px;margin:-6px 0 0}
+.setrow{padding:12px 0;border-top:1px solid var(--line)}
+.setrow:first-child{border-top:0;padding-top:0}
+.setrow:last-child{padding-bottom:0}
+.setrow b{font-weight:600;font-size:15px}
+.setrow small{display:block;margin-top:4px;font-size:13px}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.5,1) forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),108vh,0) rotate(var(--r))}}
@@ -391,7 +407,7 @@ function defaults(){
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, lastTap=null, detail=null, wrap=null, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, lastTap=null, detail=null, wrap=null, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -525,7 +541,7 @@ function startRest(sec){
     el.setAttribute("aria-label","Rusttimer, nog "+left+" seconden, tik om te sluiten");
     if(left<=0){
       clearInterval(restIv);el.textContent="Volgende set!";
-      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      vib();
       beep(2);
       setTimeout(function(){el.classList.remove("show");},3500);
     }
@@ -537,7 +553,11 @@ document.getElementById("timer").addEventListener("click",function(){clearInterv
 /* ================= geleide sessie ================= */
 var REST_LINES=["Adem in, adem uit. Zwaartekracht wacht wel.","Schouders los. Straks weer aan.","Pak even wat water, kampioen.","Goed bezig, maatje.","Even rust is ook training.","Je doet het netjes. Echt waar."];
 var runRest={end:0,total:90,iv:0,quote:""},runT={iv:0,state:"idle",t0:0,wl:null},runLast=null;
-function restSecs(){return (S.settings&&+S.settings.rest)||90;}
+function cfg(){return S.settings||(S.settings={rest:90});}
+function goalSessions(){return +cfg().goal||3;}
+function vib(pat){try{if(cfg().haptics===false)return;if(navigator.vibrate)navigator.vibrate(pat||[200,100,200]);}catch(e){}}
+function restSecs(){return +cfg().rest||90;}
+function progName(){return S.program||"Eigen programma";}
 function curType(){return S.draft?S.draft.type:nextType();}
 function isTimed(e){return /^\d+s$/.test(String(e.reps).trim());}
 function fmt(n){return pad(Math.floor(n/60))+":"+pad(n%60);}
@@ -561,7 +581,7 @@ function finishSession(){
   stopRunTimers();running=false;
   var rankBefore=rankName();S.sessions.push({date:today(),type:t,sets:count});S.draft=null;save();var rankAfter=rankName(),rankNew=rankObj();
   clearInterval(restIv);document.getElementById("timer").classList.remove("show");
-  wrap={type:t,sets:count,wk:weekSessions(),line:rankAfter!==rankBefore?"":(weekSessions()===3?WEEK_LINE:pick(SESSION_LINES))};
+  wrap={type:t,sets:count,wk:weekSessions(),line:rankAfter!==rankBefore?"":(weekSessions()===goalSessions()?(goalSessions()===3?WEEK_LINE:"Weekdoel gehaald. Deze week is van jou."):pick(SESSION_LINES))};
   tab="cards";drawn=null;render();window.scrollTo(0,0);
   if(rankAfter!==rankBefore)setTimeout(function(){levelUp(rankNew);},400);
 }
@@ -586,7 +606,7 @@ function startHold(){
   runT.iv=setInterval(function(){
     var n=Math.min(secs,Math.floor((Date.now()-runT.t0)/1000)),el=document.getElementById("rclock");
     if(el&&el.firstChild)el.firstChild.nodeValue=fmt(n)+" ";
-    if(n>=secs){clearInterval(runT.iv);runT.iv=0;try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}beep(3);completeRound();}
+    if(n>=secs){clearInterval(runT.iv);runT.iv=0;vib();beep(3);completeRound();}
   },250);
 }
 function completeRound(){
@@ -608,13 +628,18 @@ function tickRest(){
 }
 function endRest(auto){
   clearInterval(runRest.iv);runRest.iv=0;
-  if(auto){try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}beep(2);}
+  if(auto){vib();beep(2);}
   runPhase="work";runT.state="idle";render();window.scrollTo(0,0);autoStartTimed();
 }
 function exImg(name){
   var slug=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   return '<div class="hero" aria-hidden="true"><div class="heroin"><img src="assets/exercises/'+slug+'-start.webp" alt="" onerror="this.remove()"><img src="assets/exercises/'+slug+'-end.webp" alt="" onerror="this.remove()"><span>Plaatje volgt</span></div></div>';
 }
+function focusOf(plan){
+  var c={};plan.forEach(function(e){var m=MUSCLES[e.n.toLowerCase()];if(m)m[0].forEach(function(k){c[k]=(c[k]||0)+1;});});
+  return Object.keys(c).sort(function(a,b){return c[b]-c[a];}).slice(0,3).map(function(k){return MLABEL[k].toLowerCase();}).join(", ");
+}
+function shortAmount(e){var t=/^(\d+)s$/.exec(String(e.reps).trim());return e.sets+" \u00d7 "+(t?t[1]+"s":esc(e.reps))+(e.per?" per "+e.per:"");}
 function viewRun(){
   var pos=runPos();if(!pos){running=false;return viewToday();}
   var plan=pos.plan,e=pos.e,rs=remainingSets(plan,S.draft),timed=isTimed(e);
@@ -632,7 +657,8 @@ function viewRun(){
       (runLast?'<button class="linkbtn" data-act="rundo">Ronde niet gedaan?</button>':'')+'</div></div>';
     return h+'</div>';
   }
-  h+='<div class="workbox">'+exImg(e.n)+'<h2 class="wname">'+esc(e.n)+'</h2>';
+  var mu=MUSCLES[e.n.toLowerCase()];
+  h+='<div class="workbox">'+exImg(e.n)+'<h2 class="wname">'+esc(e.n)+'</h2>'+(mu?'<p class="muscles">'+mu[0].map(function(k){return MLABEL[k];}).join(" &middot; ")+'</p>':'');
   if(timed){
     var secs=parseInt(e.reps,10);
     h+='<div class="clock" id="rclock" role="timer" aria-live="off">'+(runT.state==="prep"?'Klaar? 3':'00:00 <span>/ '+fmt(secs)+'</span>')+'</div>';
@@ -660,19 +686,20 @@ var ICONS={
   today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 2v6"/><circle cx="12" cy="15" r="6"/></svg>',
   cards:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3.5"/><path d="M9 9h6M9 13h4"/></svg>',
   progress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-8M12 20V5M18 20v-5"/></svg>',
+  profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/></svg>',
   weight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="5"/><path d="M8 10a4 4 0 0 1 8 0"/><path d="M12 10l2-2"/></svg>'
 };
 
 function header(){
   var n=weekSessions(),r="";
-  for(var i=0;i<3;i++)r+='<i class="'+(i<n?"on":"")+'"></i>';
+  for(var i=0;i<goalSessions();i++)r+='<i class="'+(i<n?"on":"")+'"></i>';
   return '<div class="top"><div class="brand">'+
     '<div class="face avatar"><img src="assets/lev/avatar.webp" alt=""></div>'+
     '<div><h1>Lever-up</h1><div class="rank">'+rankName()+'</div></div></div>'+
-    '<div class="rings" role="img" aria-label="'+n+' van 3 sessies deze week">'+r+'</div></div>';
+    '<div class="rings" role="img" aria-label="'+n+' van '+goalSessions()+' sessies deze week">'+r+'</div></div>';
 }
 function tabBar(){
-  var tabs=[["today","Train"],["cards","Kaarten"],["progress","Voortgang"],["weight","Gewicht"]];
+  var tabs=[["today","Train"],["cards","Kaarten"],["progress","Voortgang"],["profile","Profiel"]];
   return '<nav class="bar" aria-label="Hoofdmenu">'+tabs.map(function(t){
     return '<button data-act="tab" data-v="'+t[0]+'"'+(tab===t[0]?' aria-current="page"':'')+'>'+ICONS[t[0]]+t[1]+'</button>';
   }).join("")+'</nav>';
@@ -692,35 +719,27 @@ function viewToday(){
   if(bld)return viewBuilder();
   var d=S.draft,type=d?d.type:nextType(),plan=S.plan[type]||[];
   if(detail!==null&&plan[detail])return viewDetail(plan[detail],type);
-  var h='<div class="seg" role="group" aria-label="Kies sessie" style="margin:0 0 16px">'+
-    ['A','B'].map(function(t){return '<button data-act="type" data-v="'+t+'" aria-pressed="'+(type===t)+'">Sessie '+t+'</button>';}).join("")+'</div>';
-  var rs=remainingSets(plan,d),started=rs.done>0,pos=runPos();
-  if(!plan.length)h+='<div class="panel"><p>Nog geen oefeningen. Stel hem samen met de knop hieronder.</p><button class="btn full" data-act="edit" style="margin-top:12px">Sessie bouwen</button></div>';
-  else{
-    var nm=(S.profile&&S.profile.name)||"",mins=Math.max(5,Math.round(rs.total*(45+restSecs())/60/5)*5);
-    h+='<div class="panel startcard"><div class="k">Sessie '+type+(nm?' &middot; '+esc(nm):'')+'</div><h2>'+plan.length+' oefeningen &middot; '+nRondes(rs.total)+'</h2><p class="muted">ongeveer '+mins+' minuten</p>'+
-      (started?'<div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' rondes gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div>':'<div style="height:14px"></div>')+
-      (pos?'<button class="btn full" data-act="runstart">'+(started?'Verder: oefening '+(pos.i+1)+', ronde '+(pos.k+1):'Start sessie')+'</button>':'<button class="btn full" data-act="finish">Sessie afronden</button>')+
-      '<button class="linkbtn" data-act="edit">Sessie bouwen</button></div><h3 style="margin:4px 2px 10px">Alle oefeningen</h3>';
+  var rs=remainingSets(plan,d),started=rs.done>0,pos=runPos(),nm=(S.profile&&S.profile.name)||"";
+  var h='<p class="progline"><b>'+esc(progName())+'</b><span>'+weekSessions()+' van '+goalSessions()+' sessies deze week</span></p>';
+  h+='<div class="seg" role="group" aria-label="Kies sessie" style="margin:0 0 16px">'+
+    ['A','B'].map(function(t){return '<button data-act="type" data-v="'+t+'" aria-pressed="'+(type===t)+'">Sessie '+t+(t===nextType()&&!started?' &middot; vandaag':'')+'</button>';}).join("")+'</div>';
+  if(!plan.length){
+    h+='<div class="panel"><p>Nog geen oefeningen in deze sessie.</p><button class="btn full" data-act="edit" style="margin-top:12px">Sessie bouwen</button></div>';
+    return h;
   }
+  var mins=Math.max(5,Math.round(rs.total*(45+restSecs())/60/5)*5),fo=focusOf(plan);
+  h+='<div class="panel startcard"><div class="k">'+(nm?'Hoi '+esc(nm)+', ':'')+'sessie '+type+'</div><h2>'+plan.length+' oefeningen</h2>'+
+    '<p class="muted">'+(fo?'Focus: '+fo+'. ':'')+nRondes(rs.total)+', ongeveer '+mins+' min</p>'+
+    (started?'<div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' rondes gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div>':'<div style="height:14px"></div>')+
+    (pos?'<button class="btn full" data-act="runstart">'+(started?'Verder: oefening '+(pos.i+1)+', ronde '+(pos.k+1):'Start sessie')+'</button>':'<button class="btn full" data-act="finish">Sessie afronden</button>')+
+    '<button class="linkbtn" data-act="edit">Programma of sessie aanpassen</button></div>';
+  h+='<h3 style="margin:4px 2px 10px">In deze sessie</h3><div class="panel xlist">';
   plan.forEach(function(e,i){
-    var done=(d&&d.done&&d.done[i])||[],cnt=0;
-    for(var s=0;s<e.sets;s++)if(done[s])cnt++;
-    h+='<div class="ex'+(cnt===e.sets?" done":"")+'"><button class="ex-open" data-act="open" data-i="'+i+'" aria-label="Bekijk '+esc(e.n)+'"><div class="shots" aria-hidden="true">'+shot(e.n,"start","Start")+shot(e.n,"end","Eind")+'</div>'+
-      '<div class="ex-head"><h3>'+esc(e.n)+'</h3><span>'+amountLabel(e)+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></div></button><div class="chips">';
-    for(var k=0;k<e.sets;k++){
-      var on=!!done[k],cls="chip"+((lastTap===i+"-"+k)?" pop":"");
-      h+='<button class="'+cls+'" data-act="set" data-i="'+i+'" data-s="'+k+'" aria-pressed="'+on+'" aria-label="Ronde '+(k+1)+' van '+esc(e.n)+'">'+
-        (on?'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':esc(e.reps))+'</button>';
-    }
-    h+='</div></div>';
+    var done=(d&&d.done&&d.done[i])||[],cnt=0;for(var k=0;k<e.sets;k++)if(done[k])cnt++;
+    h+='<button class="xrow" data-act="open" data-i="'+i+'"><span class="xn'+(cnt===e.sets?' ok':'')+'">'+(cnt===e.sets?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':(i+1))+'</span><span class="xt">'+esc(e.n)+'</span><span class="xa">'+(cnt&&cnt<e.sets?cnt+'/'+e.sets+' &middot; ':'')+shortAmount(e)+'</span></button>';
   });
+  h+='</div>';
   if(started&&pos)h+='<button class="btn ghost full" data-act="finish">Nu afronden</button>';
-  if(S.sessions.length){
-    h+='<div class="panel" style="margin-top:20px"><h3>Laatste sessies</h3><ul class="list" style="margin-top:6px">';
-    S.sessions.slice(-4).reverse().forEach(function(s){h+='<li><span>'+nlDate(s.date)+'</span><span class="muted">Sessie '+s.type+', '+nRondes(s.sets)+'</span></li>';});
-    h+='</ul></div>';
-  }
   return h;
 }
 
@@ -752,7 +771,7 @@ function viewDetail(e,type){
 }
 var ac=null;
 function audio(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}return ac;}
-function beep(n){var c=ac;if(!c)return;for(var i=0;i<(n||2);i++){try{var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.28;o.type="sine";o.frequency.value=880;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.22);}catch(e){}}}
+function beep(n){var c=ac;if(!c||cfg().sound===false)return;for(var i=0;i<(n||2);i++){try{var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.28;o.type="sine";o.frequency.value=880;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.22);}catch(e){}}}
 var tmr={iv:0,wl:null};
 function stopTimer(){clearInterval(tmr.iv);tmr.iv=0;try{if(tmr.wl){tmr.wl.release();tmr.wl=null;}}catch(e){}}
 function runTimer(secs){
@@ -765,7 +784,7 @@ function runTimer(secs){
     if(el)el.firstChild.nodeValue=pad(Math.floor(n/60))+":"+pad(n%60)+" ";
     if(n>=secs){
       stopTimer();var b=document.getElementById("tbtn");if(b)b.textContent="Start timer";
-      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      vib();
       beep(3);toast("Klaar!");
     }
   }
@@ -810,6 +829,11 @@ function ladderPanel(){
   }).reverse().join("");
   return '<details class="panel fold"><summary>Alle rangen<span>'+esc(rankName())+'</span></summary><ol class="rungs">'+rows+'</ol></details>';
 }
+function historyPanel(){
+  if(!S.sessions.length)return '';
+  var li=S.sessions.slice(-8).reverse().map(function(x){return '<li><span>'+nlDate(x.date)+'</span><span class="muted">Sessie '+x.type+', '+nRondes(x.sets)+'</span></li>';}).join("");
+  return '<details class="panel fold"><summary>Laatste sessies<span>'+S.sessions.length+' in totaal</span></summary><ul class="list">'+li+'</ul></details>';
+}
 function suitPanel(){
   var h='<details class="panel fold"><summary>Opbouw per spiergroep<span>niveau 1 tot 3</span></summary><div class="sl" style="margin-top:14px"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
   Object.keys(SUITS).forEach(function(k){
@@ -826,7 +850,7 @@ function viewProgress(){
   var n=weekSessions();
   var cw=(S.cardLog||[]).filter(function(d){return parseYmd(d).getTime()>=ws;}).length;
   var wn=S.weights.filter(function(w){return parseYmd(w.date).getTime()>=ws;}).length;
-  var goals=[["3 sessies",n,3],["1 bonuskaart",cw,1],["4 weigh-ins",wn,4]];
+  var goals=[[goalSessions()+" sessies",n,goalSessions()],["1 bonuskaart",cw,1],["4 weigh-ins",wn,4]];
   var pct=Math.round(goals.reduce(function(a,g){return a+Math.min(1,g[1]/g[2]);},0)/goals.length*100);
   var uniq=DECK.filter(function(c){return S.cards[c.id];}).length;
   var N=20,lit=Math.round(pct/100*N),segs="";
@@ -839,7 +863,7 @@ function viewProgress(){
   var GOALS='<h3 style="text-align:left;margin:18px 0 4px">Wekelijkse doelen</h3><ul class="list goals">'+
     goals.map(function(g){var ok=g[1]>=g[2];return '<li class="'+(ok?"ok":"")+'"><span class="ck">'+(ok?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><span>'+g[0]+'</span><span class="n">'+Math.min(g[1],g[2])+'/'+g[2]+'</span></li>';}).join("")+'</ul>';
   var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel prog"><div class="ringwrap">'+ring+'</div>'+GOALS+'</div>'+
-    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){return '<div class="badge'+(b[2]?"":" off")+'" aria-label="'+b[1]+(b[2]?", behaald":", nog niet behaald, "+b[3])+'">'+medal(b[0],b[2])+b[1]+(b[2]?'':'<small>'+b[3]+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel();
+    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){return '<div class="badge'+(b[2]?"":" off")+'" aria-label="'+b[1]+(b[2]?", behaald":", nog niet behaald, "+b[3])+'">'+medal(b[0],b[2])+b[1]+(b[2]?'':'<small>'+b[3]+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel()+historyPanel();
   return h;
 }
 function levelUp(r){
@@ -892,7 +916,7 @@ var SUITKEY={push:"p",pull:"t",core:"c",legs:"l"};
 function viewCards(){
   var cards=DECK.filter(function(c){return c.l===drawLevel;});
   var h="";
-  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,3)+' van 3 sessies. Trek je bonuskaart.</p>'+(wrap.line?'<p class="quote">&ldquo;'+esc(wrap.line)+'&rdquo;<small>Lev</small></p>':'')+'</div>';
+  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,goalSessions())+' van '+goalSessions()+' sessies. Trek je bonuskaart.</p>'+(wrap.line?'<p class="quote">&ldquo;'+esc(wrap.line)+'&rdquo;<small>Lev</small></p>':'')+'</div>';
   h+='<div class="seg" role="group" aria-label="Niveau" style="margin:0 0 4px">'+[1,2,3].map(function(l){return '<button data-act="level" data-v="'+l+'" aria-pressed="'+(drawLevel===l)+'">Niveau '+l+'</button>';}).join("")+'</div>';
   h+='<div class="carousel'+(drawn?' picked':'')+'" id="carousel" role="region" aria-roledescription="carrousel" tabindex="0" aria-label="Kaarten van niveau '+drawLevel+'">'+cards.map(function(c){
     var dots="";for(var i=1;i<=3;i++)dots+='<i'+(i<=c.l?' class="on"':'')+'></i>';
@@ -967,6 +991,25 @@ function viewWeight(){
   return h;
 }
 
+function opts(key,list,cur){
+  return '<div class="seg" role="group" style="margin:6px 0 0">'+list.map(function(o){return '<button data-act="cfg" data-k="'+key+'" data-v="'+o[0]+'" aria-pressed="'+(String(cur)===String(o[0]))+'" style="font-size:14px">'+o[1]+'</button>';}).join("")+'</div>';
+}
+function viewProfile(){
+  var c=cfg(),r=rankObj(),nm=(S.profile&&S.profile.name)||"";
+  var h='<h2 style="margin:0 2px 12px">Profiel</h2><div class="panel"><div class="rankbox"><div class="face lav"><img src="assets/lev/avatar.webp" alt=""></div><div style="flex:1;min-width:0"><label for="pname" style="margin:0 0 4px;font-size:13px;color:var(--muted)">Naam</label><input id="pname" type="text" data-f="name" maxlength="20" placeholder="Je naam" value="'+esc(nm)+'" style="min-height:44px"><div class="k" style="margin-top:8px">'+esc(r[2])+' &middot; '+nRondes(S.sessions.length).replace("rondes","sessies").replace("ronde","sessie")+'</div></div></div><p class="muted" style="margin-top:12px;font-size:14px">Programma: '+esc(progName())+'</p></div>';
+  h+='<h3 style="margin:20px 2px 10px">Gewicht</h3>'+viewWeight().replace('<h2>Weigh-in</h2>','<h3 style="margin-bottom:4px">Weigh-in</h3>');
+  h+='<h3 style="margin:20px 2px 10px">Instellingen</h3><div class="panel">'+
+    '<div class="setrow"><b>Rust tussen rondes</b>'+opts("rest",[[30,"30 s"],[60,"60 s"],[90,"90 s"],[120,"2 min"],[180,"3 min"]],restSecs())+'</div>'+
+    '<div class="setrow"><b>Weekdoel</b>'+opts("goal",[[2,"2"],[3,"3"],[4,"4"],[5,"5"]],goalSessions())+'<small class="muted">sessies per week</small></div>'+
+    '<div class="setrow"><b>Geluid</b>'+opts("sound",[["on","Aan"],["off","Uit"]],c.sound===false?"off":"on")+'</div>'+
+    '<div class="setrow"><b>Trillen</b>'+opts("haptics",[["on","Aan"],["off","Uit"]],c.haptics===false?"off":"on")+'</div></div>';
+  h+='<h3 style="margin:20px 2px 10px">Gegevens</h3><div class="panel"><p class="muted" style="font-size:14px;margin-bottom:12px">Alles staat alleen op dit toestel. Sla regelmatig een back-up op, vooral voor je een telefoon wisselt.</p>'+
+    '<button class="btn ghost full" data-act="export">Back-up opslaan</button><div style="height:8px"></div>'+
+    '<button class="btn ghost full" data-act="importpick">Back-up terugzetten</button><input id="impfile" type="file" accept="application/json,.json" hidden>'+
+    '<button class="linkbtn" data-act="wipe" style="color:#ffb4a8">'+(wipeArmed?'Zeker weten? Tik nogmaals om alles te wissen':'Alles wissen')+'</button></div>';
+  h+='<p class="muted" style="text-align:center;font-size:13px;margin:16px 0">Lever-up &middot; Lev traint met je mee</p>';
+  return h;
+}
 function render(){
   var af=document.activeElement,sel=null;
   if(af&&af.getAttribute&&af.getAttribute("data-act")){sel='[data-act="'+af.getAttribute("data-act")+'"]';["data-i","data-s","data-v"].forEach(function(k){if(af.hasAttribute(k))sel+='['+k+'="'+af.getAttribute(k)+'"]';});}
@@ -974,7 +1017,7 @@ function render(){
   if(!S.onboarded)html=viewOnboard();
   else if(running)html=viewRun();
   else{
-    var body=tab==="today"?viewToday():tab==="cards"?viewCards():tab==="progress"?viewProgress():viewWeight();
+    var body=tab==="today"?viewToday():tab==="cards"?viewCards():tab==="progress"?viewProgress():viewProfile();
     html=header()+(DEMO?'<p class="muted" style="text-align:center;font-size:13px;margin:-8px 0 12px">Voorbeeldgegevens, er wordt niets opgeslagen</p>':"")+body+tabBar();
   }
   document.getElementById("app").innerHTML=html;
@@ -1002,6 +1045,19 @@ document.getElementById("app").addEventListener("click",function(ev){
     return;
   }
   if(act==="finish"){finishSession();return;}
+  if(act==="cfg"){var ck=b.getAttribute("data-k"),c2=cfg(),nv2=v;
+    if(ck==="rest"||ck==="goal")c2[ck]=+nv2;else c2[ck]=(nv2==="on");
+    save();render();return;}
+  if(act==="export"){
+    var txt=JSON.stringify(S,null,2),fname="lever-up-backup-"+today()+".json",file=null;
+    try{file=new File([txt],fname,{type:"application/json"});}catch(e){}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:"Lever-up back-up"}).catch(function(){});return;}
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));a.download=fname;document.body.appendChild(a);a.click();a.remove();toast("Back-up opgeslagen");return;}
+  if(act==="importpick"){document.getElementById("impfile").click();return;}
+  if(act==="wipe"){
+    if(!wipeArmed){wipeArmed=true;render();setTimeout(function(){if(wipeArmed){wipeArmed=false;if(tab==="profile")render();}},4000);return;}
+    var prev=JSON.stringify(S);wipeArmed=false;S=defaults();obStep=1;try{localStorage.removeItem(KEY);}catch(e){}
+    render();toast("Alles gewist",function(){S=JSON.parse(prev);save();render();});return;}
   if(act==="runstart"){runStart();return;}
   if(act==="runstop"){if(history.state&&history.state.lu==="r"){history.back();return;}runExit();render();return;}
   if(act==="rdone"){completeRound();return;}
@@ -1011,7 +1067,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="rnext"){endRest(false);return;}
   if(act==="rundo"){if(runLast&&S.draft&&S.draft.done[runLast.i]){S.draft.done[runLast.i][runLast.k]=false;save();}stopRunTimers();runPhase="work";runLast=null;render();window.scrollTo(0,0);autoStartTimed();return;}
   if(act==="obname"){var nv=document.getElementById("obname").value.trim().slice(0,20);S.profile=S.profile||{};S.profile.name=nv;save();obStep=2;render();window.scrollTo(0,0);return;}
-  if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}obStep=3;render();window.scrollTo(0,0);return;}
+  if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}obStep=3;render();window.scrollTo(0,0);return;}
   if(act==="obdone"){S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
   if(act==="open"){detail=+b.getAttribute("data-i");try{history.pushState({lu:"d"},"");}catch(e){}render();window.scrollTo(0,0);return;}
   if(act==="close"){stopTimer();if(history.state&&history.state.lu==="d"){history.back();return;}detail=null;render();return;}
@@ -1030,7 +1086,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="bown"){var nm=document.getElementById("own").value.trim();if(!nm){toast("Geef de oefening een naam");return;}bld[bldType].push({n:nm,sets:3,reps:"8"});render();return;}
   if(act==="bsave"){
     if(!bld.A.length||!bld.B.length){toast("Beide sessies hebben minstens één oefening nodig");return;}
-    S.plan={A:bld.A,B:bld.B};S.draft=null;save();bld=null;toast("Plan opgeslagen");render();window.scrollTo(0,0);return;
+    S.plan={A:bld.A,B:bld.B};S.program=bldProg>=0?PROGRAMS[bldProg].n:"Eigen programma";S.draft=null;save();bld=null;toast("Plan opgeslagen");render();window.scrollTo(0,0);return;
   }
   if(act==="level"){drawLevel=+v;drawn=null;render();return;}
   if(act==="draw"){
@@ -1056,7 +1112,16 @@ window.addEventListener("popstate",function(){
   if(detail!==null){stopTimer();detail=null;render();window.scrollTo(0,0);}
 });
 document.getElementById("app").addEventListener("change",function(ev){
-  var f=ev.target;if(!bld||!f.matches||!f.matches("[data-f=reps]"))return;
+  var f=ev.target;
+  if(f&&f.id==="impfile"&&f.files&&f.files[0]){
+    var rd=new FileReader();rd.onload=function(){
+      try{var o=JSON.parse(rd.result);if(!o||!o.plan||!Array.isArray(o.sessions))throw 0;
+        var prev=JSON.stringify(S);if(!o.profile)o.profile={name:""};if(!o.settings)o.settings={rest:90};o.onboarded=true;
+        S=o;save();render();toast("Back-up teruggezet",function(){S=JSON.parse(prev);save();render();});
+      }catch(e){toast("Dit is geen Lever-up back-up");}
+    };rd.readAsText(f.files[0]);return;
+  }
+  if(f&&f.matches&&f.matches("[data-f=name]")){S.profile=S.profile||{};S.profile.name=f.value.trim().slice(0,20);save();toast("Naam opgeslagen");return;}if(!bld||!f.matches||!f.matches("[data-f=reps]"))return;
   var v=f.value.trim().toLowerCase().replace(/\s+/g,"");
   if(!/^\d{1,3}s?$/.test(v)||+v.replace("s","")<1){toast("Gebruik een getal, of een tijd zoals 20s");f.value=bld[bldType][+f.getAttribute("data-i")].reps;return;}
   bld[bldType][+f.getAttribute("data-i")].reps=v;f.value=v;

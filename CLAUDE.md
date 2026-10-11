@@ -42,7 +42,7 @@ Geen vijfde rol. Voor dit project:
 - Alle tabs en Level up hebben de nieuwe look en de nieuwe Lev (uitgesneden uit het karakterblad, tijdelijk laag-res). Het oude cartoonkarakter is uit de code gehaald.
 - Beelden: promptset voor Gemini staat in `docs/prompts-gemini.md` (stijlblok, vaste ruimte en camera, 8 oefeningen start/eind, 24 kaarten, Lev-poses, badges, rangen, icoon). Jordy maakt ze, Claude zet ze om en plaatst ze.
 - Rangen en Lev-teksten staan in `docs/lev-teksten.md` (Groentje, Veertje, Bar Baas, Lucht Ninja, Legende; quotes alleen op Level up, rangpaneel en afrondpaneel, niet tijdens de training). Dit lost de vraag over tekstballonnen grotendeels op: geen ballonnen.
-- Geleide sessie (focusscherm, automatische rust met Lev, tijdsoefeningen starten zelf) en eerste-keer-schermen zijn gebouwd. Nog te doen: Profiel-tab met instellingen (rusttijd, weekdoel, geluid, back-up exporteren en importeren) en Gewicht daarheen verhuizen.
+- Geleide sessie (focusscherm, automatische rust met Lev, tijdsoefeningen starten zelf) en eerste-keer-schermen zijn gebouwd. Profiel-tab (naam, Gewicht, instellingen, back-up) is gebouwd; Train is een beknopt overzicht (startkaart plus compacte lijst).
 - Gebouwd na de vijf schermen: sessiebouwer (programma's, bibliotheek, aanpassen), rangenladder en opbouw per spiergroep (Voortgang).
 - Volgende stap: hosten via https (nodig om op de telefoon te installeren), Lev-stem in copy (open beslissing), echte plaatjes (Lev-posen, kaarten, oefeningen, app-icoon 1024 px). Let op iOS: de geïnstalleerde app heeft een eigen opslag, data uit Safari komt er niet in.
 - Lokaal bekijken: `python3 -m http.server 5183` in de repo, dan `http://127.0.0.1:5183/lever-up.html`.

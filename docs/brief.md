@@ -61,7 +61,7 @@ Vier soorten: duwen (`p`), trekken (`t`), core (`c`), benen (`l`). Drie niveaus.
 4. **Progressie en badges**: grote ring met het weekpercentage en het woord "Voltooid", twee tot vier badges als troffee of medaille, en weekdoelen met aantallen (sessies, bonuskaart, weigh-ins, totale trainingstijd).
 5. **Rang en reeks**: avatar van Lev met de huidige rang, het aantal dagen op rij en vlam-streak. Een vriendenranglijst uit het voorbeeld is een latere versie: dat vraagt gedeelde opslag tussen mensen en hoort niet bij deze opdracht.
 
-De tabbalk onderaan wordt: Train, Kaarten, Voortgang, Gewicht.
+De tabbalk onderaan wordt: Train, Kaarten, Voortgang, Gewicht. (Gewijzigd 2026-10-11: de vierde tab is Profiel, met Gewicht daarin.)
 
 ## Spiergroepen
 
