@@ -386,6 +386,24 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .dayrow button{flex:1;min-width:0;min-height:48px;border-radius:var(--rs);border:var(--ew) solid var(--edge);background:var(--well);color:var(--muted);font:inherit;font-weight:600;font-size:14px;cursor:pointer}
   .dayrow button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .levfact{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+
+  .goalhead{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);background:none;border:0;padding:4px 2px 0;margin:0 0 14px;cursor:pointer}
+  .goalhead.plain{display:flex;justify-content:space-between;align-items:center;cursor:default}
+  .goalhead .gh1{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .goalhead.plain .gh1{margin:0}
+  .goalhead b{font-size:22px;font-weight:700}
+  .goalhead .gh1 span{color:var(--muted);font-size:15px;font-weight:600}
+  .gbar{display:block;height:6px;border-radius:3px;background:var(--tint);overflow:hidden}
+  .gbar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+  .wstrip i{display:flex;align-items:center;justify-content:center;width:30px;height:30px;font-style:normal;font-size:13px;font-weight:700;color:var(--muted)}
+  .wstrip .plan i{border-color:var(--muted)}
+  .wstrip .plan.now i{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .wstrip .done i{color:var(--accent-ink)}
+  .wstrip .miss i{background:transparent;border:2px dashed var(--tint)}
+  .wcap{margin:0 2px 16px;font-size:14px;color:var(--muted);text-align:center}
+  .hcue{margin:2px 0 10px;font-size:15px}
+  .row2{display:flex;gap:10px;margin-top:12px}
+  .btn2{flex:1;min-height:48px;border-radius:var(--rs);border:var(--ew) solid var(--edge);background:#263d6e;color:var(--ink);font:inherit;font-weight:600;font-size:15px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -946,15 +964,21 @@ function remainingSets(plan,d){
 }
 function trainDays(){var d=cfg().days;return Array.isArray(d)&&d.length?d:[1,3,5];}
 var DAYN=["Zo","Ma","Di","Wo","Do","Vr","Za"];
+var DAYFULL=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
 function weekStrip(){
-  var ws=weekStart(new Date()),o={},tdy=today(),h='';
-  S.sessions.forEach(function(x){o[x.date]=1;});
+  var ws=weekStart(new Date()),tdy=today(),by={},nx=nextType(),h='',next=null,plan=trainDays();
+  S.sessions.forEach(function(x){by[x.date]=x;});
   for(var i=0;i<7;i++){
     var d=new Date(ws);d.setDate(ws.getDate()+i);
-    var dow=d.getDay(),c=(o[ymd(d)]?'done ':'')+(trainDays().indexOf(dow)>-1?'plan ':'')+(ymd(d)===tdy?'now':'');
-    h+='<span class="'+c+'"><i></i>'+DAYN[dow]+'</span>';
+    var key=ymd(d),dow=d.getDay(),isP=plan.indexOf(dow)>-1,isT=key===tdy,past=key<tdy,c=[],inner="";
+    if(by[key]){c.push("done");inner='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';}
+    else if(isP&&!past){c.push("plan");inner=nx;if(!next)next={dow:dow,t:nx,today:isT};nx=nx==="A"?"B":"A";}
+    else if(isP)c.push("miss");
+    if(isT)c.push("now");
+    h+='<span class="'+c.join(" ")+'"><i>'+inner+'</i>'+DAYN[dow]+'</span>';
   }
-  return '<div class="wstrip" role="img" aria-label="Deze week: gevulde dagen zijn getraind, een ring is een geplande trainingsdag">'+h+'</div>';
+  var cap=next?(next.today?'Vandaag: sessie '+next.t:'Volgende: '+DAYFULL[next.dow]+', sessie '+next.t):'Deze week zit erop. Rust is ook training.';
+  return '<div class="wstrip" role="img" aria-label="'+cap+'. Lime met vinkje is getraind, een ring is gepland.">'+h+'</div><p class="wcap">'+cap+' &middot; '+weekSessions()+' van '+goalSessions()+' deze week</p>';
 }
 function heroLabel(){
   var did=S.sessions.some(function(x){return x.date===today();});
@@ -966,17 +990,20 @@ function viewToday(){
   var d=S.draft,type=d?d.type:nextType(),plan=S.plan[type]||[];
   if(detail!==null&&plan[detail])return viewDetail(plan[detail],type);
   var rs=remainingSets(plan,d),started=rs.done>0,pos=runPos(),nm=(S.profile&&S.profile.name)||"";
-  var h='<p class="progline"><b>'+esc(progName())+'</b><span>'+weekSessions()+' van '+goalSessions()+' sessies deze week</span></p>'+weekStrip();
+  var gp=pathById(S.goal),gs=gp?cardById(gp.steps[curStep(gp)]):null,gmast=gp?gp.steps.filter(function(id){return skills()[id]==="beheerst";}).length:0;
+  var h=gp?'<button class="goalhead" data-act="tree"><span class="gh1"><b>'+gp.n+'</b><span>'+(pathDone(gp)?'bereikt':'stap '+(curStep(gp)+1)+' van '+gp.steps.length)+'</span></span><span class="gbar" aria-hidden="true"><i style="width:'+Math.round(gmast/gp.steps.length*100)+'%"></i></span></button>':'<div class="goalhead plain"><span class="gh1"><b>'+esc(progName())+'</b></span><button class="linkbtn" data-act="tree" style="margin:0">Kies een doel</button></div>';
+  h+=weekStrip();
   if(!plan.length){
     h+='<div class="panel"><p>Nog geen oefeningen in deze sessie.</p><button class="btn full" data-act="edit" style="margin-top:12px">Programma aanpassen</button></div>';
     return h;
   }
-  var mins=Math.max(5,Math.round(rs.total*(45+restSecs())/60/5)*5),fo=focusOf(plan);
-  h+='<div class="panel startcard"><div class="k">'+(nm?'Hoi '+esc(nm)+', ':'')+heroLabel()+'</div><h2>'+plan.length+' oefeningen</h2>'+
-    '<p class="muted">'+(fo?'Focus: '+fo+'. ':'')+nRondes(rs.total)+', ongeveer '+mins+' min</p>'+
+  var mins=Math.max(5,Math.round(rs.total*(45+restSecs())/60/5)*5),fo=focusOf(plan),c0=cardOf(plan[0].n),isG=!!(gp&&!pathDone(gp)&&c0&&c0.id===gs.id);
+  h+='<div class="panel startcard"><div class="k">'+(nm?'Hoi '+esc(nm)+', ':'')+heroLabel()+'</div>'+
+    (isG?'<h2>'+esc(plan[0].n)+'</h2><p class="muted">Doel '+shortAmount(plan[0])+' &middot; + '+(plan.length-1)+' ondersteunende oefeningen</p>'+(CUES[gs.id]?'<p class="hcue">'+esc(CUES[gs.id])+'</p>':'')+'<p class="muted">'+nRondes(rs.total)+', ongeveer '+mins+' min</p>':
+      '<h2>'+plan.length+' oefeningen</h2><p class="muted">'+(fo?'Focus: '+fo+'. ':'')+nRondes(rs.total)+', ongeveer '+mins+' min</p>')+
     (started?'<div class="rbar" role="img" aria-label="'+rs.done+' van '+rs.total+' rondes gedaan"><i style="width:'+Math.round(rs.done/rs.total*100)+'%"></i></div>':'<div style="height:14px"></div>')+
     (pos?'<button class="btn full" data-act="runstart">'+(started?'Verder: oefening '+(pos.i+1)+', ronde '+(pos.k+1):'Start sessie')+'</button>':'<button class="btn full" data-act="finish">Sessie afronden</button>')+
-    '<button class="linkbtn" data-act="edit">Programma aanpassen</button>'+(started?'':'<button class="linkbtn" data-act="type" data-v="'+(type==='A'?'B':'A')+'">Toon de andere sessie</button>')+'</div>';
+    '<div class="row2"><button class="btn2" data-act="edit">Aanpassen</button>'+(started?'':'<button class="btn2" data-act="type" data-v="'+(type==='A'?'B':'A')+'">Andere sessie</button>')+'</div></div>';
   h+='<h3 style="margin:4px 2px 10px">In deze sessie</h3><div class="panel xlist">';
   plan.forEach(function(e,i){
     var done=(d&&d.done&&d.done[i])||[],cnt=0;for(var k=0;k<e.sets;k++)if(done[k])cnt++;
@@ -984,8 +1011,6 @@ function viewToday(){
   });
   h+='</div>';
   if(started&&pos)h+='<button class="btn ghost full" data-act="finish">Nu afronden</button>';
-  var gp=pathById(S.goal);
-  h+=gp?'<button class="goalrow" data-act="tree"><span>Doel: <b>'+gp.n+'</b> &middot; '+(pathDone(gp)?'bereikt':'stap '+(curStep(gp)+1)+' van '+gp.steps.length)+'</span><i aria-hidden="true">&rsaquo;</i></button>':'<button class="linkbtn" data-act="tree">Kies een doel</button>';
   var lf=levFact();
   h+='<div class="levfact"><div class="k">'+lf.k+'</div>'+levBubble(lf.t)+'<button class="linkbtn" data-act="levmore">Nog een</button></div>';
   return h;
