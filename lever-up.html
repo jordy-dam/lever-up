@@ -594,6 +594,17 @@ function pathPlan(p){
   function mk(l){return [c].concat(l.filter(function(x){return x!==c;})).map(function(id){return entryFrom(cardById(id));});}
   return {A:mk(p.A),B:mk(p.B)};
 }
+/* verandert een vaardigheid de huidige stap van je doel, dan schuiven je sessies mee (tenzij er een sessie loopt) en geeft dit een bericht terug */
+function goalShift(id,fn){
+  var p=pathById(S.goal),had=!!p&&p.steps.indexOf(id)>=0,c0=had?curStep(p):0,d0=had&&pathDone(p);
+  fn();
+  if(!had)return null;
+  var c1=curStep(p),d1=pathDone(p);
+  if(c1===c0&&d1===d0)return null;
+  if(S.draft&&Object.keys(S.draft.done).length)save();else applyPath(p);
+  if(d1&&!d0)return "Doel bereikt: "+p.n+"! Dat is echt een prestatie.";
+  return c1>c0?"Stap gehaald! Nu: "+cardById(p.steps[c1]).n:null;
+}
 function applyPath(p){S.plan=pathPlan(p);S.program=p.n;S.goal=p.id;S.draft=null;save();}
 /* ================= confetti ================= */
 function confetti(){
@@ -1260,8 +1271,8 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="finish"){finishSession();return;}
   if(act==="skills"){skillsOpen=true;render();window.scrollTo(0,0);return;}
   if(act==="skillsclose"){skillsOpen=false;render();return;}
-  if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx();if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;save();render();toast(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt");afterRank(rb);return;}
-  if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx();skills()[wrap.sugg.id]="beheerst";wrap.sugg=null;save();render();toast(pick(SKILL_LINES));afterRank(rb2);return;}
+  if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx(),gm=goalShift(sid,function(){if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;});save();render();toast(gm||(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt"));if(gm)confetti();afterRank(rb);return;}
+  if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx(),sid2=wrap.sugg.id,gm2=goalShift(sid2,function(){skills()[sid2]="beheerst";});wrap.sugg=null;save();render();toast(gm2||pick(SKILL_LINES));if(gm2)confetti();afterRank(rb2);return;}
   if(act==="skillno"){if(!wrap||!wrap.sugg)return;(S.skillAsk||(S.skillAsk={}))[wrap.sugg.id]=S.sessions.length;wrap.sugg=null;save();render();return;}
   if(act==="tipnext"){tipIdx=(tipIdx+1)%ALLTIPS.length;render();return;}
   if(act==="tipprev"){tipIdx=(tipIdx-1+ALLTIPS.length)%ALLTIPS.length;render();return;}
