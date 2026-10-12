@@ -386,6 +386,7 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .wstrip .plan i{border-color:var(--muted)}
   .wstrip .plan.now i{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .wstrip .done i{color:var(--accent-ink)}
+  .wstrip .xtra i{background:var(--accent-mid);color:var(--accent-ink)}
   .wstrip .miss i{background:transparent;border:2px dashed var(--tint)}
   .wcap{margin:0 2px 16px;font-size:14px;color:var(--muted);text-align:center}
   .hcue{margin:2px 0 10px;font-size:15px}
@@ -968,7 +969,7 @@ function header(){
     '<div class="rings" role="img" aria-label="'+n+' van '+goalSessions()+' sessies deze week">'+r+'</div></div>';
 }
 function tabBar(){
-  var tabs=[["today","Train"],["cards","Kaarten"],["progress","Voortgang"],["profile","Profiel"]];
+  var tabs=[["today","Train"],["cards","Extra"],["progress","Voortgang"],["profile","Profiel"]];
   return '<nav class="bar" aria-label="Hoofdmenu">'+tabs.map(function(t){
     return '<button data-act="tab" data-v="'+t[0]+'"'+(tab===t[0]?' aria-current="page"':'')+'>'+ICONS[t[0]]+t[1]+'</button>';
   }).join("")+'</nav>';
@@ -983,19 +984,20 @@ function trainDays(){var d=cfg().days;return Array.isArray(d)&&d.length?d:[1,3,5
 var DAYN=["Zo","Ma","Di","Wo","Do","Vr","Za"];
 var DAYFULL=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
 function weekStrip(){
-  var ws=weekStart(new Date()),tdy=today(),by={},nx=nextType(),h='',next=null,plan=trainDays();
-  S.sessions.forEach(function(x){by[x.date]=x;});
+  var ws=weekStart(new Date()),tdy=today(),by={},xt={},nx=nextType(),h='',next=null,plan=trainDays(),nxt=0;
+  S.sessions.forEach(function(x){by[x.date]=x;});(S.cardLog||[]).forEach(function(d){xt[d]=1;});
   for(var i=0;i<7;i++){
     var d=new Date(ws);d.setDate(ws.getDate()+i);
     var key=ymd(d),dow=d.getDay(),isP=plan.indexOf(dow)>-1,isT=key===tdy,past=key<tdy,c=[],inner="";
     if(by[key]){c.push("done");inner='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';}
     else if(isP&&!past){c.push("plan");inner=nx;if(!next)next={dow:dow,t:nx,today:isT};nx=nx==="A"?"B":"A";}
+    else if(xt[key]){c.push("xtra");inner="+";nxt++;}
     else if(isP)c.push("miss");
     if(isT)c.push("now");
     h+='<span class="'+c.join(" ")+'"><i>'+inner+'</i>'+DAYN[dow]+'</span>';
   }
   var cap=next?(next.today?'Vandaag: sessie '+next.t:'Volgende: '+DAYFULL[next.dow]+', sessie '+next.t):'Deze week zit erop. Rust is ook training.';
-  return '<div class="wstrip" role="img" aria-label="'+cap+'. Lime met vinkje is getraind, een ring is gepland.">'+h+'</div><p class="wcap">'+cap+' &middot; '+weekSessions()+' van '+goalSessions()+' deze week</p>';
+  return '<div class="wstrip" role="img" aria-label="'+cap+'. Lime met vinkje is getraind, een ring is gepland.">'+h+'</div><p class="wcap">'+cap+' &middot; '+weekSessions()+' van '+goalSessions()+' deze week'+(nxt?' &middot; '+nxt+' extra':'')+'</p>';
 }
 function heroLabel(){
   var did=S.sessions.some(function(x){return x.date===today();});
@@ -1163,7 +1165,7 @@ function viewProgress(){
   var n=weekSessions();
   var cw=(S.cardLog||[]).filter(function(d){return parseYmd(d).getTime()>=ws;}).length;
   var wn=S.weights.filter(function(w){return parseYmd(w.date).getTime()>=ws;}).length;
-  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+padPanel()+'<div class="panel wk"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg><div><div class="nr">'+streakWeeks()+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(streakWeeks()?(streakWeeks()===1?'week':'weken')+' op rij met '+goalSessions()+' sessies':'Haal deze week '+goalSessions()+' sessies')+'</div></div></div><div class="rings3">'+miniRing("Sessies",n,goalSessions())+miniRing("Bonuskaart",cw,1)+miniRing("Weigh-ins",wn,4)+'</div></div>'+
+  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+padPanel()+'<div class="panel wk"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg><div><div class="nr">'+streakWeeks()+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(streakWeeks()?(streakWeeks()===1?'week':'weken')+' op rij met '+goalSessions()+' sessies':'Haal deze week '+goalSessions()+' sessies')+'</div></div></div><div class="rings3">'+miniRing("Sessies",n,goalSessions())+miniRing("Extra kaart",cw,1)+miniRing("Weigh-ins",wn,4)+'</div></div>'+
     muscleCard()+historyPanel()+'<div class="row2" style="margin-top:14px"><button class="btn2" data-act="skills">Alle vaardigheden</button></div>';
   return h;
 }
@@ -1241,7 +1243,8 @@ var SUITKEY={push:"p",pull:"t",core:"c",legs:"l"};
 function viewCards(){
   var cards=DECK.filter(function(c){return c.l===drawLevel;});
   var h="";
-  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,goalSessions())+' van '+goalSessions()+' sessies. Trek je bonuskaart.</p>'+(wrap.line?'<div style="margin-top:14px">'+levBubble(wrap.line)+'</div>':'')+(wrap.sugg?'<div style="margin-top:14px">'+levBubble(wrap.sugg.n+' gaat lekker. Beheers je hem nu?')+'<div class="row" style="margin-top:12px"><button class="btn" style="flex:1" data-act="skillyes">Ja, beheerst</button><button class="btn ghost" data-act="skillno">Nog niet</button></div></div>':'')+'</div>';
+  if(wrap)h+='<div class="panel wrap"><div class="k">Sessie '+wrap.type+' klaar</div><h2 style="margin:2px 0 4px">'+nRondes(wrap.sets)+' gedaan</h2><p>Week: '+Math.min(wrap.wk,goalSessions())+' van '+goalSessions()+' sessies. Trek je extra kaart.</p>'+(wrap.line?'<div style="margin-top:14px">'+levBubble(wrap.line)+'</div>':'')+(wrap.sugg?'<div style="margin-top:14px">'+levBubble(wrap.sugg.n+' gaat lekker. Beheers je hem nu?')+'<div class="row" style="margin-top:12px"><button class="btn" style="flex:1" data-act="skillyes">Ja, beheerst</button><button class="btn ghost" data-act="skillno">Nog niet</button></div></div>':'')+'</div>';
+  if(!wrap)h+='<p class="muted" style="margin:0 2px 14px">Even iets extra doen? Trek een kaart, doe de oefening en hij telt mee als extra training, ook op een rustdag.</p>';
   h+='<div class="seg" role="group" aria-label="Niveau" style="margin:0 0 4px">'+[1,2,3].map(function(l){return '<button data-act="level" data-v="'+l+'" aria-pressed="'+(drawLevel===l)+'">Niveau '+l+'</button>';}).join("")+'</div>';
   h+='<div class="carousel'+(drawn?' picked':'')+'" id="carousel" role="region" aria-roledescription="carrousel" tabindex="0" aria-label="Kaarten van niveau '+drawLevel+'">'+cards.map(function(c){
     var dots="";for(var i=1;i<=3;i++)dots+='<i'+(i<=c.l?' class="on"':'')+'></i>';
@@ -1457,7 +1460,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="done"){
     if(!drawn)return;
     S.cards[drawn.id]=(S.cards[drawn.id]||0)+1;(S.cardLog=S.cardLog||[]).push(today());save();
-    var again=S.cards[drawn.id]>1;toast(pick(CARD_LINES)+(again?" ("+S.cards[drawn.id]+"e keer)":""));wrap=null;drawn=null;render();setTimeout(function(){checkBadges();},500);return;
+    var again=S.cards[drawn.id]>1;toast(pick(CARD_LINES)+(again?" ("+S.cards[drawn.id]+"e keer)":"")+" Telt als extra training.");wrap=null;drawn=null;render();setTimeout(function(){checkBadges();},500);return;
   }
 });
 window.addEventListener("popstate",function(){
