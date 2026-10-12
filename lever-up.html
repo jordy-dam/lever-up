@@ -358,6 +358,19 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .tb>b{display:block;font-size:17px}
   .tb>span{display:block;font-size:14px;color:var(--muted);margin:2px 0 8px}
   .tcue{margin:0 0 10px;font-size:14px}
+
+  .levfact{margin:0 0 14px}
+  .levfact .k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .levfact .linkbtn{margin-top:4px}
+  .rankbar ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr)}
+  .rankbar li{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+  .rankbar li:not(:last-child)::after{content:"";position:absolute;top:13px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:var(--tint)}
+  .rankbar li.done:not(:last-child)::after{background:var(--accent)}
+  .rankbar .dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);background:var(--card);position:relative;z-index:1}
+  .rankbar .done .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .rankbar .now .dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .rankbar b{font-size:12px;line-height:1.2;font-weight:600;color:var(--muted)}
+  .rankbar .now b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -687,6 +700,14 @@ function levBubble(text,big){
   return '<div class="lev'+(big?' big':'')+'"><div class="face levf"><img src="assets/lev/avatar.webp" alt=""></div><div class="lbub">&ldquo;'+esc(text)+'&rdquo;</div></div>';
 }
 function levCue(name){var c=cueFor(name);return c?levBubble(c):'';}
+var LEVFACTS=[["feitje", "Calisthenics komt uit het Grieks: kalos sthenos, schoonheid en kracht."], ["steun", "Een gemiste week is geen mislukking. Vandaag begin je gewoon opnieuw."], ["feitje", "Je spieren groeien niet tijdens de training, maar in de rust erna."], ["steun", "Klein is ook goed. Eén ronde is meer dan geen ronde."], ["feitje", "Een muscle-up is een pull-up en een dip aan elkaar, met één vloeiende overgang."], ["steun", "Motivatie komt en gaat. Een vaste dag houdt je overeind."], ["feitje", "Langzaam zakken (negatives) kan je lijf beter dan omhoog komen. Je bent daar sterker in."], ["steun", "Vergelijk jezelf met vorige maand, niet met een ander."], ["feitje", "Ringen wiebelen. Daardoor doen je stabiliserende spieren meer werk dan op een vaste stang."], ["steun", "Je hoeft je niet fit te voelen om te beginnen. Je wordt fit door te beginnen."], ["feitje", "Je pezen en gewrichten wennen langzamer dan je spieren. Daarom bouwen we rustig op."], ["steun", "Zwaartekracht versla je in kleine stapjes. Vandaag is er één."], ["feitje", "In de eerste weken groeit vooral je zenuwstelsel mee, nog voor je spieren dikker worden."], ["steun", "Je bouwt dit voor jezelf. Niemand anders hoeft het mooi te vinden."], ["feitje", "Een front lever vraagt vooral rug- en buikkracht. Je trekt jezelf horizontaal vast."], ["steun", "Een slechte training is nog steeds een training."], ["feitje", "Een hollow body is de basis van bijna elke gymnastiekbeweging."], ["steun", "Moe? Doe de eerste ronde. De rest komt vaak vanzelf."], ["feitje", "Parallettes zijn lage stangen. Je pakt ze neutraal vast, wat je polsen spaart."], ["steun", "Elke rang begon met een eerste sessie."], ["feitje", "Balans leer je met veel korte pogingen, niet met één lange. Dat geldt zeker voor een handstand."], ["steun", "Vorm gaat voor kracht. Langzaam is prima."], ["feitje", "Bij een pull-up werkt je rug minstens zo hard mee als je armen."], ["steun", "Wie volhoudt wint, ook als het langzaam gaat."], ["feitje", "Een week niet trainen kost je nauwelijks kracht. Terugkomen telt."], ["feitje", "Dertig seconden netjes in een plank is beter dan twee minuten slap."]];
+var factOff=0;
+function levFact(){
+  var ls=S.sessions.length?S.sessions[S.sessions.length-1].date:null,gap=ls?Math.floor((Date.now()-parseYmd(ls).getTime())/864e5):0;
+  if(ls&&gap>=7&&!factOff)return {k:"Welkom terug",t:"Een pauze is geen straf. Begin licht, doe één sessie en bouw rustig weer op."};
+  var f=LEVFACTS[(Math.floor(Date.now()/864e5)+factOff)%LEVFACTS.length];
+  return {k:f[0]==="feitje"?"Wist je dat?":"Lev zegt",t:f[1]};
+}
 var ALLTIPS=[];TIPBLOCKS.forEach(function(b){b.l.forEach(function(x){ALLTIPS.push({c:b.t,t:x});});});
 var tipIdx=Math.floor(Math.random()*ALLTIPS.length);
 function tipsBody(){
@@ -915,6 +936,7 @@ function viewToday(){
   if(detail!==null&&plan[detail])return viewDetail(plan[detail],type);
   var rs=remainingSets(plan,d),started=rs.done>0,pos=runPos(),nm=(S.profile&&S.profile.name)||"";
   var gp=pathById(S.goal),h=gp?'<button class="panel goalcard" data-act="tree"><span class="k">Jouw doel</span><b>'+gp.n+'</b><span>'+(pathDone(gp)?'Bereikt':'Stap '+(curStep(gp)+1)+' van '+gp.steps.length+': '+esc(cardById(gp.steps[curStep(gp)]).n))+'</span></button>':'<button class="panel goalcard" data-act="tree"><span class="k">Nieuw</span><b>Kies een doel</b><span>Front lever, handstand of L-sit</span></button>';
+  var lf=levFact();h+='<div class="panel levfact"><div class="k">'+lf.k+'</div>'+levBubble(lf.t)+'<button class="linkbtn" data-act="levmore">Nog een</button></div>';
   h+='<p class="progline"><b>'+esc(progName())+'</b><span>'+weekSessions()+' van '+goalSessions()+' sessies deze week</span></p>';
   h+='<div class="seg" role="group" aria-label="Kies sessie" style="margin:0 0 16px">'+
     ['A','B'].map(function(t){return '<button data-act="type" data-v="'+t+'" aria-pressed="'+(type===t)+'">Sessie '+t+(t===nextType()&&!started?' &middot; vandaag':'')+'</button>';}).join("")+'</div>';
@@ -1015,18 +1037,16 @@ function rankPanel(){
   var o={},st=streakWeeks(),dots="";S.sessions.forEach(function(x){o[x.date]=1;});
   for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);dots+='<span><i class="'+(o[ymd(d)]?"on":"")+'"></i>'+["Zo","Ma","Di","Wo","Do","Vr","Za"][d.getDay()]+'</span>';}
   return '<div class="panel rankcard">'+
-    '<div class="rcbody"><div class="k" style="color:var(--muted);font-weight:600;font-size:13px">Rang</div><h2>'+esc(rankName())+'</h2>'+bars+'<div class="k" style="margin-top:8px;color:var(--muted);font-size:13px;font-weight:600">'+line+'</div><div style="margin-top:14px">'+levBubble(rankObj()[3])+'</div></div></div>'+
+    '<div class="rcbody"><div class="k" style="color:var(--muted);font-weight:600;font-size:13px">Rang</div><h2>'+esc(rankName())+'</h2>'+bars+'<div class="k" style="margin-top:8px;color:var(--muted);font-size:13px;font-weight:600">'+line+'</div><div style="margin-top:14px">'+levBubble(rankObj()[3])+'</div></div></div>'+ladderPanel()+
     '<div class="panel"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg>'+
     '<div><div class="nr">'+st+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(st?(st===1?'week':'weken')+' op rij met 3 sessies':'Haal deze week 3 sessies')+'</div></div></div><div class="week7" role="img" aria-label="Trainingsdagen, laatste 7 dagen">'+dots+'</div></div>';
 }
 function ladderPanel(){
   var cur=RANKS.indexOf(rankObj());
-  var rows=RANKS.map(function(r,i){
-    var st=i<cur?"done":i===cur?"now":"todo",sub=i===0?"Start":r[0]+" sessies &middot; "+r[4]+" beheerst";
-    if(st==="now")sub+=" · jij bent hier";
-    return '<li class="rung '+st+'"'+(st==="now"?' aria-current="step"':'')+'><span class="dot">'+(st==="done"?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><div><b>'+esc(r[2])+'</b><small>'+sub+'</small></div></li>';
-  }).reverse().join("");
-  return '<details class="panel fold"><summary>Alle rangen<span>'+esc(rankName())+'</span></summary><ol class="rungs">'+rows+'</ol></details>';
+  return '<div class="panel rankbar"><ol>'+RANKS.map(function(r,i){
+    var st=i<cur?"done":i===cur?"now":"todo";
+    return '<li class="'+st+'"'+(st==="now"?' aria-current="step"':'')+'><span class="dot">'+(st==="done"?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':(i+1))+'</span><b>'+esc(r[1])+'</b></li>';
+  }).join("")+'</ol></div>';
 }
 function historyPanel(){
   if(!S.sessions.length)return '';
@@ -1061,7 +1081,7 @@ function viewProgress(){
   var GOALS='<h3 style="text-align:left;margin:18px 0 4px">Wekelijkse doelen</h3><ul class="list goals">'+
     goals.map(function(g){var ok=g[1]>=g[2];return '<li class="'+(ok?"ok":"")+'"><span class="ck">'+(ok?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><span>'+g[0]+'</span><span class="n">'+Math.min(g[1],g[2])+'/'+g[2]+'</span></li>';}).join("")+'</ul>';
   var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel prog"><div class="ringwrap">'+ring+'</div>'+GOALS+'</div>'+
-    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){var got=S.badges&&S.badges[b.id]!==undefined||b.ok,dt=S.badges&&S.badges[b.id];return '<div class="badge'+(got?"":" off")+'" aria-label="'+b.name+(got?", behaald":", nog niet behaald, "+b.crit)+'">'+medal(b.id,got)+b.name+(got?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>'+b.crit+'</small>')+'</div>';}).join("")+'</div>'+ladderPanel()+suitPanel()+historyPanel();
+    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){var got=S.badges&&S.badges[b.id]!==undefined||b.ok,dt=S.badges&&S.badges[b.id];return '<div class="badge'+(got?"":" off")+'" aria-label="'+b.name+(got?", behaald":", nog niet behaald, "+b.crit)+'">'+medal(b.id,got)+b.name+(got?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>'+b.crit+'</small>')+'</div>';}).join("")+'</div>'+suitPanel()+historyPanel();
   return h;
 }
 var BADGE_LINES={first:"Eerste sessie in de pocket. Dit is pas het begin.",five:"Vijf keer raak. Jij hebt de smaak te pakken.",week:"Drie sessies in één week. Dat noem ik consistent, koning.",cards:"Zes kaarten verzameld. De kaartenjager heeft weer toegeslagen."};
@@ -1310,6 +1330,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="obgoal"){if(v==="sterker"){S.goal=null;obStep="prog";}else{S.goal=v;obStep=4;}save();render();window.scrollTo(0,0);return;}
   if(act==="obcheck"){var cid=b.getAttribute("data-id");if(skills()[cid]==="beheerst")delete skills()[cid];else skills()[cid]="beheerst";save();render();return;}
   if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.goal=null;S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
+  if(act==="levmore"){factOff++;render();return;}
   if(act==="tree"){treeOpen=true;treeChoose=!S.goal;render();window.scrollTo(0,0);return;}
   if(act==="treeclose"){treeOpen=false;treeChoose=false;render();return;}
   if(act==="goalchange"){treeChoose=true;render();window.scrollTo(0,0);return;}
