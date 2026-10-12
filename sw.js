@@ -1,7 +1,7 @@
 /* Lever-up service worker: app-schil vooraf in de cache, de rest (plaatjes, lettertype) bij eerste gebruik.
    De pagina zelf komt eerst van het netwerk (nieuwe versie meteen) en alleen offline uit de cache; plaatjes en lettertype komen uit de cache en worden op de achtergrond ververst.
    Verander VERSION om de oude cache bij het volgende bezoek leeg te gooien. */
-var VERSION="lever-up-v51";
+var VERSION="lever-up-v52";
 var CORE=[
   "lever-up.html",
   "manifest.webmanifest",
