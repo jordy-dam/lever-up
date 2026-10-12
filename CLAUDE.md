@@ -36,7 +36,10 @@ Geen vijfde rol. Voor dit project:
 - Prompts voor de beeldgenerator (karakterblad, posesets, kaarten): Storyteller. De plaatjes zelf maakt Jordy in een beeldgenerator, Claude Code kan geen plaatjes genereren.
 - Beslissingen met gevolgen: loggen in `DECISIONS.md`.
 
-## Stand van zaken (2026-10-11)
+## Stand van zaken (2026-10-12)
+
+- **Nieuw (12 okt):** doel-eerst. Boomscherm per doel (Front lever, Handstand, L-sit) op Train, `PATHS` en `EXTRA` (11 doelstappen, niveau 4, afwijking van de brief, zie `DECISIONS.md`), nieuwe eerste-keer-flow van vijf stappen. Beelden voor de 11 nieuwe stappen zijn er nog niet: prompts in `docs/prompts-gemini.md` (sectie Doelstappen). Het karakter blijft Lev in de huidige cartoonstijl.
+
 
 - Klaar: scherm 3 (Train/trainingsoverzicht), scherm 2 (Kaarten), scherm 1 (Oefening uitgelicht), scherm 4 (Voortgang), scherm 5 (Rang en reeks, bovenaan Voortgang) en de gedeelde look (kleuren, knoppen, tabbalk, header). Plaatjes: alleen Parallette push-ups (`assets/exercises/<naam-met-streepjes>-start|end.webp`); verder valt het oefenscherm terug op `assets/cards/<id>.webp`, anders een plaatshouder.
 - Alle tabs en Level up hebben de nieuwe look en de nieuwe Lev (uitgesneden uit het karakterblad, tijdelijk laag-res). Het oude cartoonkarakter is uit de code gehaald.

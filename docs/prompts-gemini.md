@@ -92,6 +92,22 @@ Bovenste rij: 1. Squats: diepe squat, armen naar voren. 2. Glute bridges: liggen
 Onderste rij: 4. Wall sit: rug plat tegen de muur, bovenbenen horizontaal. 5. Pistol squat naar bank: zakkend op één been naar een bank, het andere been gestrekt voor. 6. Jump squats: in de lucht, benen gestrekt, armen omhoog.
 ```
 
+## Volgende 3: Doelstappen (2 bladen, 11 beelden)
+
+De elf extra stappen voor de paden naar Front lever, L-sit en Handstand (zie `DECISIONS.md`, 2026-10-12). Zelfde opbouw, stijlblok en uitvoeringsregels als hierboven; ze gaan naar `assets/cards/<id>.webp` (fl1 t/m hs4). Het zesde vak van blad 2 laat je leeg (een lege, effen achtergrond).
+
+**Blad Doel 1** (`cards-doel-1.png`, volgorde fl1 fl2 fl3 fl4 fl5 ls1)
+```
+Bovenste rij: 1. Tuck front lever: Lev hangt aan een rekstok of ringen, armen recht, knieën bij de borst, rug horizontaal, lichaam parallel aan de grond. 2. Advanced tuck front lever: zelfde, maar de heupen open en de rug bijna horizontaal, knieën nog gebogen. 3. One-leg front lever: horizontaal, één been gestrekt, het andere been getuckt.
+Onderste rij: 4. Straddle front lever: horizontaal, benen wijd en gestrekt. 5. Front lever hold: horizontaal als een plank, hele lichaam recht, benen samen en gestrekt. 6. One-leg L-sit: in steun op twee parallettes, één been recht naar voren, het andere been getuckt.
+```
+
+**Blad Doel 2** (`cards-doel-2.png`, volgorde ls2 hs1 hs2 hs3 hs4, zesde vak leeg)
+```
+Bovenste rij: 1. L-sit op parallettes: in steun op twee parallettes, beide benen recht en samen naar voren, schouders omlaag. 2. Wall plank: Lev in plankhouding met zijn voeten tegen een muur, handen op de vloer onder zijn schouders. 3. Handstand tegen de muur: Lev staat op zijn handen met zijn borst en buik naar de muur gedraaid, voeten tegen de muur, lichaam recht.
+Onderste rij: 4. Handstand met muurtikjes: handstand nabij de muur, één voet net los van de muur. 5. Vrije handstand: Lev staat vrij op zijn handen, lichaam recht, tenen gestrekt, ver van de muur. 6. Leeg vak.
+```
+
 ## Losse prompts: de vier hangoefeningen
 
 Eén plaatje per prompt, vierkant (1:1, bijvoorbeeld 2048 x 2048). Geef het karakterblad mee, plak het stijlblok en daarna de prompt. De regels staan in elke prompt zelf, zodat ze niet verloren gaan.

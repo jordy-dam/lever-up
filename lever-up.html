@@ -341,6 +341,23 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .sw,.sw i{transition:none}
   .confetti{display:none}
 }
+
+  .goalcard{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;margin:0 0 14px;min-height:48px}
+  .goalcard .k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+  .goalcard b{font-size:19px}
+  .goalcard span:last-child{color:var(--muted);font-size:14px}
+  .tree{list-style:none;margin:0 0 20px;padding:0}
+  .tnode{display:flex;gap:14px;position:relative;padding-bottom:18px}
+  .tnode:not(:last-child)::before{content:"";position:absolute;left:17px;top:38px;bottom:0;width:2px;background:var(--edge)}
+  .tnode.done:not(:last-child)::before{background:var(--accent)}
+  .tn{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--well);border:2px solid var(--edge);color:var(--muted)}
+  .tnode.done .tn{background:var(--accent);border-color:var(--accent);color:#0e1830}
+  .tnode.now .tn{border-color:var(--accent);color:var(--accent)}
+  .tnode.lock .tb{opacity:.6}
+  .tb{flex:1;min-width:0}
+  .tb>b{display:block;font-size:17px}
+  .tb>span{display:block;font-size:14px;color:var(--muted);margin:2px 0 8px}
+  .tcue{margin:0 0 10px;font-size:14px}
 </style>
 </head>
 <body>
@@ -377,6 +394,16 @@ var MUSCLES={
  "chin-up negatives":[["biceps","lats"],["forearms","upper_back"]],
  "pull-ups":[["lats","biceps","upper_back"],["forearms","abs","rear_delt"]],
  "front lever hold":[["lats","abs","rear_delt"],["biceps","forearms","glutes","upper_back"]],
+ "tuck front lever":[["lats","abs","rear_delt"],["biceps","forearms","upper_back"]],
+ "advanced tuck front lever":[["lats","abs","rear_delt"],["biceps","forearms","upper_back"]],
+ "one-leg front lever":[["lats","abs","rear_delt"],["biceps","forearms","glutes","upper_back"]],
+ "straddle front lever":[["lats","abs","rear_delt"],["biceps","forearms","glutes","upper_back"]],
+ "one-leg l-sit":[["hip_flexors","abs","triceps"],["quads","front_delt","forearms"]],
+ "l-sit op parallettes":[["hip_flexors","abs","triceps"],["quads","front_delt","forearms"]],
+ "wall plank":[["front_delt","abs"],["triceps","forearms","glutes"]],
+ "handstand tegen de muur":[["front_delt","triceps"],["upper_back","abs","forearms"]],
+ "handstand met muurtikjes":[["front_delt","triceps"],["upper_back","abs","forearms"]],
+ "vrije handstand":[["front_delt","triceps"],["upper_back","abs","forearms"]],
  "dead bug":[["abs","hip_flexors"],["obliques"]],
  "plank":[["abs","obliques"],["front_delt","glutes"]],
  "hollow hold":[["abs","hip_flexors"],["quads"]],
@@ -419,9 +446,25 @@ var DECK=[
  {id:"l2a",s:"legs",l:2,n:"Split squats",a:"8 per been"},{id:"l2b",s:"legs",l:2,n:"Wall sit",a:"40 sec"},
  {id:"l3a",s:"legs",l:3,n:"Pistol squat naar bank",a:"5 per been"},{id:"l3b",s:"legs",l:3,n:"Jump squats",a:"10 reps"}
 ];
+/* doelstappen (DECISIONS.md, 2026-10-12): extra kaarten voor de paden naar een doel; niet in het trekdeck, wel in bibliotheek, vaardigheden en sessies */
+var EXTRA=[
+ {id:"fl1",s:"pull",l:4,n:"Tuck front lever",a:"10 sec"},{id:"fl2",s:"pull",l:4,n:"Advanced tuck front lever",a:"8 sec"},
+ {id:"fl3",s:"pull",l:4,n:"One-leg front lever",a:"6 sec"},{id:"fl4",s:"pull",l:4,n:"Straddle front lever",a:"5 sec"},
+ {id:"fl5",s:"pull",l:4,n:"Front lever hold",a:"5 sec"},
+ {id:"ls1",s:"core",l:4,n:"One-leg L-sit",a:"10 sec"},{id:"ls2",s:"core",l:4,n:"L-sit op parallettes",a:"10 sec"},
+ {id:"hs1",s:"push",l:4,n:"Wall plank",a:"30 sec"},{id:"hs2",s:"push",l:4,n:"Handstand tegen de muur",a:"20 sec"},
+ {id:"hs3",s:"push",l:4,n:"Handstand met muurtikjes",a:"10 sec"},{id:"hs4",s:"push",l:4,n:"Vrije handstand",a:"5 sec"}
+];
+var ALL=DECK.concat(EXTRA);
+/* paden: steps = kaart-ID's in volgorde, A/B = ondersteunende oefeningen per sessie (de huidige stap staat altijd bovenaan) */
+var PATHS=[
+ {id:"fl",n:"Front lever",d:"Horizontaal hangen, recht als een plank",steps:["t1b","c2a","t3a","fl1","fl2","fl3","fl4","fl5"],A:["t3b","c3b","l2a"],B:["t2a","c2b","l1b"]},
+ {id:"hs",n:"Handstand",d:"Op je handen, rechtop en stil",steps:["c1b","c2a","p2b","hs1","hs2","hs3","hs4"],A:["t2a","c3b","l1a"],B:["p2a","t1a","l1b"]},
+ {id:"ls",n:"L-sit",d:"Op je handen, benen recht vooruit",steps:["c1b","c2a","c2b","c3a","ls1","ls2"],A:["p2a","t2a","l2b"],B:["p2b","t3b","l1a"]}
+];
 function defaults(){
   return {
-    updatedAt:0,
+    updatedAt:0,goal:null,
     plan:{
       A:[{n:"Parallette push-ups",sets:3,reps:"8"},{n:"Ring rows",sets:3,reps:"8"},{n:"Pike push-ups",sets:3,reps:"6"},{n:"Hollow hold",sets:3,reps:"20s"}],
       B:[{n:"Ring rows, voeten verhoogd",sets:3,reps:"8"},{n:"Split squats",sets:3,reps:"8"},{n:"Tuck L-sit op parallettes",sets:3,reps:"10s"},{n:"Dead bug",sets:3,reps:"10"}]
@@ -432,7 +475,7 @@ function defaults(){
 }
 
 /* ================= state + persistence ================= */
-var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, wSel=null, profOpen={weight:false,tips:false,settings:false,data:false}, avatarOpen=false, skillsOpen=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldName="", bldNameTouched=false, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
+var S=load(), tab="today", drawn=null, drawLevel=1, detail=null, wrap=null, wSel=null, profOpen={weight:false,tips:false,settings:false,data:false}, avatarOpen=false, skillsOpen=false, treeOpen=false, treeChoose=false, wipeArmed=false, running=false, runPhase="work", obStep=1, bld=null, bldName="", bldNameTouched=false, bldType="A", bldLib=false, bldSuit="push", bldProg=-1;
 var dbRef=null, saveTimer=null;
 /* ?demo toont voorbeeldgegevens, zonder iets op te slaan; ?demo=levelup toont ook het Level up-scherm */
 var DEMO=/[?&]demo/.test(location.search);
@@ -443,7 +486,7 @@ if(DEMO){
   S.sessions=[35,31,28,24,21,17,14,10,7,3,1,0].map(function(n,i){return {date:dd(n),type:i%2?"B":"A",sets:9};});
   S.cards={p1a:2,p2b:1,t1a:1,c1b:3,l1a:1,p3a:1,t2a:1,l2b:1};
   S.skills={p1a:"beheerst",p1b:"beheerst",t1a:"beheerst",t1b:"beheerst",c1a:"beheerst",c1b:"beheerst",l1a:"bezig",p2a:"bezig"};
-  S.sessions.slice(-3).forEach(function(x){x.ex=[{n:"Pike push-ups",d:3,s:3}];});S.cardLog=[dd(0)];
+  S.goal="fl";S.skills.c2a="beheerst";S.sessions.slice(-3).forEach(function(x){x.ex=[{n:"Pike push-ups",d:3,s:3}];});S.cardLog=[dd(0)];
 }
 
 function load(){
@@ -542,7 +585,16 @@ function amountLabel(e){
   return nRondes(e.sets)+" \u00b7 "+(t?t[1]+" sec":esc(e.reps)+" reps"+(e.per?" per "+e.per:""));
 }
 function repLabel(e){return esc(e.reps)+(e.per?" per "+e.per:"");}
-function cardById(id){return DECK.filter(function(c){return c.id===id;})[0];}
+function cardById(id){return ALL.filter(function(c){return c.id===id;})[0];}
+function pathById(id){return PATHS.filter(function(p){return p.id===id;})[0]||null;}
+function curStep(p){for(var i=0;i<p.steps.length;i++)if(skills()[p.steps[i]]!=="beheerst")return i;return p.steps.length-1;}
+function pathDone(p){return p.steps.every(function(id){return skills()[id]==="beheerst";});}
+function pathPlan(p){
+  var c=p.steps[curStep(p)];
+  function mk(l){return [c].concat(l.filter(function(x){return x!==c;})).map(function(id){return entryFrom(cardById(id));});}
+  return {A:mk(p.A),B:mk(p.B)};
+}
+function applyPath(p){S.plan=pathPlan(p);S.program=p.n;S.goal=p.id;S.draft=null;save();}
 /* ================= confetti ================= */
 function confetti(){
   if(REDUCE)return;
@@ -594,8 +646,10 @@ var CUES={"p1a": "Één rechte lijn, billen niet omhoog. Hoe lager de bank, hoe 
 var TIPBLOCKS=[{"t": "Opwarmen", "l": ["Rol een minuut je polsen en schouders voor je begint. Je gewrichten bedanken je later.", "Doe de eerste ronde van een oefening licht. Dat is je eigen warming-up.", "Even hangen aan de stang of de ringen maakt je schouders los."]}, {"t": "Rust en herstel", "l": ["Spieren groeien in je rust, niet tijdens het trainen. Rust is ook training.", "Zet een rustdag tussen je sessies, bijvoorbeeld A, rust, B, rust, A.", "Slaap meetellen. Echt waar."]}, {"t": "Techniek", "l": ["Netjes gaat voor veel. Zakt je vorm in, dan is het genoeg voor die ronde.", "Adem uit als het zwaar wordt, niet je adem inhouden.", "Neem af en toe een filmpje van jezelf. Je ziet meer dan je voelt."]}, {"t": "Opbouwen", "l": ["Voelt alles makkelijk? Pak een kaart van het volgende niveau.", "Eerst een herhaling erbij, dan een ronde erbij, dan pas een moeilijkere variant.", "Vergelijk jezelf met vorige week, niet met een ander."]}, {"t": "Luister naar je lijf", "l": ["Spierbrand is oké. Pijn in een gewricht is een stopsignaal.", "Heb je een blessure of klachten? Vraag het eerst aan een arts of fysiotherapeut.", "Een slokje water tussen de rondes helpt."]}];
 function cardOf(name){
   var n=String(name).toLowerCase();
-  return DECK.filter(function(x){return x.n.toLowerCase()===n;})[0]||DECK.filter(function(x){return x.n.toLowerCase().indexOf(n)===0;})[0]||null;
+  return ALL.filter(function(x){return x.n.toLowerCase()===n;})[0]||ALL.filter(function(x){return x.n.toLowerCase().indexOf(n)===0;})[0]||null;
 }
+/* tips van Lev voor de doelstappen */
+(function(){var c={fl1:"Rug rond, knieën bij je borst, armen recht. Kijk naar je tenen, niet naar het plafond.",fl2:"Open je heupen tot je rug bijna horizontaal is. Armen blijven recht, schouders omlaag.",fl3:"Strek één been, de ander blijft getuckt. Blijf horizontaal en wissel van been.",fl4:"Benen wijd en gestrekt, heupen op schouderhoogte. Korte holds, netjes gaat voor lang.",fl5:"Eén rechte lijn van schouders tot tenen. Armen recht, buik en billen strak.",ls1:"Eén been recht vooruit, de ander getuckt. Duw je schouders weg van je oren.",ls2:"Benen recht en samen, tenen gestrekt. Duw de parallettes omlaag en blijf hoog.",hs1:"Voeten tegen de muur, handen onder je schouders. Duw de vloer weg en houd je buik strak.",hs2:"Borst naar de muur, één lijn van handen tot tenen. Kijk tussen je handen.",hs3:"Laat één voet kort los en tik weer terug. Klein beginnen, rustig blijven.",hs4:"Kick-up en zoek je balans met je vingertoppen. Zakt hij weg? Duw dan met je vingers terug."};for(var k in c)CUES[k]=c[k];})();
 function cueFor(name){var c=cardOf(name);return c?CUES[c.id]:"";}
 var SKILL_LINES=["Beheerst! Dat noem ik vooruitgang.","Weer een vaardigheid van de lijst. Netjes.","Zwaartekracht verliest weer een punt."];
 var STATUS=[["nieuw","Nieuw"],["bezig","Bezig"],["beheerst","Beheerst"]];
@@ -777,14 +831,41 @@ function viewRun(){
   h+='<button class="linkbtn" data-act="rskip">Oefening overslaan</button></div></div></div>';
   return h;
 }
+function goalList(act){
+  return '<div class="pgms" style="text-align:left">'+PATHS.map(function(p){return '<button class="pgm" data-act="'+act+'" data-v="'+p.id+'"><b>'+p.n+'</b><span>'+p.d+' &middot; '+p.steps.length+' stappen</span></button>';}).join("")+
+    '<button class="pgm" data-act="'+act+'" data-v="sterker"><b>Gewoon sterker worden</b><span>Geen doel, een vast programma op jouw niveau</span></button></div>';
+}
 function viewOnboard(){
-  var name=(S.profile&&S.profile.name)||"",h='<div class="onb">';
-  if(obStep===1)h+='<div class="face lav" style="width:132px;height:132px;margin:0 auto"><img src="assets/lev/avatar.webp" alt=""></div><h1>Hoi, ik ben Lev</h1><p class="muted">Ik ben je trainer. Samen verslaan we de zwaartekracht.</p>'+
-    '<div style="text-align:left"><label for="obname">Hoe heet je?</label><input id="obname" type="text" maxlength="20" autocomplete="given-name" placeholder="Je naam" value="'+esc(name)+'"></div>'+
-    '<div style="text-align:left"><label>Kies je avatar</label>'+avatarPicker("obav",avatarId())+'</div><button class="btn full" data-act="obname">Verder</button><p class="muted" style="font-size:13px">Je gegevens blijven op dit toestel. Geen account nodig.</p>';
-  else if(obStep===2)h+='<h1>Kies je programma</h1><p class="muted">Je past het later altijd aan.</p><div class="pgms" style="text-align:left">'+PROGRAMS.map(function(g,i){return '<button class="pgm" data-act="obprog" data-v="'+i+'"><b>'+g.n+'</b><span>'+g.d+'</span></button>';}).join("")+'</div><button class="linkbtn" data-act="obown">Ik stel zelf mijn programma samen</button>';
-  else h+='<h1>Zo werkt het'+(name?', '+esc(name):'')+'</h1><ol class="how"><li><b>1</b><span>Tik op <i>Start sessie</i>. Ik laat je steeds één oefening zien.</span></li><li><b>2</b><span>Tik <i>Ronde klaar</i>. De rust start vanzelf, en bij tijdsoefeningen start de klok ook vanzelf.</span></li><li><b>3</b><span>Na je sessie trek je een bonuskaart.</span></li></ol><button class="btn full" data-act="obdone">Naar mijn sessie</button>';
+  var name=(S.profile&&S.profile.name)||"",h='<div class="onb">',p=pathById(S.goal);
+  if(obStep===1)h+='<div class="face lav" style="width:132px;height:132px;margin:0 auto"><img src="assets/lev/avatar.webp" alt=""></div><h1>Hoi, ik ben Lev</h1><p class="muted">Ik ben je persoonlijke coach. Samen werken we naar iets dat je echt wilt kunnen, zoals een front lever, handstand of L-sit.</p>'+
+    '<ol class="how" style="text-align:left"><li><b>1</b><span>Jij kiest een doel. Ik toon je het pad, stap voor stap.</span></li><li><b>2</b><span>Elke stap heeft een eigen set oefeningen. Ik leid je erdoorheen, met rondes, rust en klok.</span></li><li><b>3</b><span>Haal je een stap? Dan opent de volgende en stijg je in rang.</span></li></ol>'+
+    '<button class="btn full" data-act="obnext">Zullen we beginnen?</button><p class="muted" style="font-size:13px">Je gegevens blijven op dit toestel. Geen account nodig.</p>';
+  else if(obStep===2)h+='<h1>Eerst even kennismaken</h1><div style="text-align:left"><label for="obname">Hoe heet je?</label><input id="obname" type="text" maxlength="20" autocomplete="given-name" placeholder="Je naam" value="'+esc(name)+'"></div>'+
+    '<div style="text-align:left"><label>Kies je avatar</label>'+avatarPicker("obav",avatarId())+'</div><button class="btn full" data-act="obname">Verder</button>';
+  else if(obStep===3)h+='<h1>Wat wil je kunnen'+(name?', '+esc(name):'')+'?</h1><p class="muted">Kies je doel. Je kunt het later altijd wisselen.</p>'+goalList("obgoal");
+  else if(obStep===4&&p)h+='<h1>Wat kun je al?</h1><p class="muted">Vink aan wat je netjes beheerst. Ik begin bij de eerste stap die je nog niet kunt.</p><div class="pgms" style="text-align:left">'+p.steps.map(function(id){var c=cardById(id);return '<button class="pgm" data-act="obcheck" data-id="'+id+'" aria-pressed="'+(skills()[id]==="beheerst")+'"><b>'+esc(c.n)+'</b><span>'+goalText(c)+'</span></button>';}).join("")+'</div><button class="btn full" data-act="obnext">Verder</button>';
+  else if(obStep===5&&p){
+    var st=p.steps[curStep(p)],sc=cardById(st);
+    h+='<h1>Dit is jouw plan</h1>'+levBubble('Je begint bij '+sc.n+'. '+(CUES[st]||''))+'<p class="muted" style="margin-top:14px">Sessie A en B wisselen elkaar af, elk met je doelstap bovenaan.</p><div class="panel xlist" style="text-align:left">'+S.plan.A.map(function(e,i){return '<div class="xrow"><span class="xn">'+(i+1)+'</span><span class="xt">'+esc(e.n)+'</span><span class="xa">'+shortAmount(e)+'</span></div>';}).join("")+'</div><button class="btn full" data-act="obdone">Naar mijn sessie</button>';
+  }
+  else h+='<h1>Kies je programma</h1><p class="muted">Je past het later altijd aan.</p><div class="pgms" style="text-align:left">'+PROGRAMS.map(function(g,i){return '<button class="pgm" data-act="obprog" data-v="'+i+'"><b>'+g.n+'</b><span>'+g.d+'</span></button>';}).join("")+'</div><button class="linkbtn" data-act="obown">Ik stel zelf mijn programma samen</button>';
   return h+'</div>';
+}
+
+/* doelscherm: de boom naar je doel */
+function viewTree(){
+  var back='<button class="backbtn" data-act="treeclose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Terug</button>',p=pathById(S.goal);
+  if(!p||treeChoose)return back+'<h2 style="margin:0 2px 4px">Wat wil je kunnen?</h2><p class="muted" style="margin:0 2px 16px">Kies een doel. Ik zet de stappen en je sessies klaar.</p>'+goalList("goalpick");
+  var ci=curStep(p),done=pathDone(p),n=p.steps.filter(function(id){return skills()[id]==="beheerst";}).length;
+  var h=back+'<h2 style="margin:0 2px 4px">'+p.n+'</h2><p class="muted" style="margin:0 2px 16px">'+(done?'Doel bereikt! Dat is echt een prestatie.':n+' van '+p.steps.length+' stappen beheerst. Je traint nu stap '+(ci+1)+'.')+'</p><ol class="tree">';
+  p.steps.forEach(function(id,i){
+    var c=cardById(id),st=skills()[id]==="beheerst"?"done":(i===ci&&!done?"now":(i>ci?"lock":"now"));
+    h+='<li class="tnode '+st+'"><span class="tn">'+(st==="done"?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':(i+1))+'</span><div class="tb"><b>'+esc(c.n)+'</b><span>'+goalText(c)+(i===ci&&!done?' &middot; nu aan de beurt':'')+'</span>';
+    if(i===ci&&!done&&CUES[id])h+='<p class="tcue">'+esc(CUES[id])+'</p>';
+    h+=skillSeg(id,skills()[id]||"nieuw")+'</div></li>';
+  });
+  h+='</ol><button class="btn full" data-act="goaltrain">Train deze stap</button><button class="linkbtn" data-act="goalchange">Ander doel kiezen</button>';
+  return h;
 }
 
 /* ================= views ================= */
@@ -818,10 +899,12 @@ function remainingSets(plan,d){
 }
 function viewToday(){
   if(bld)return viewBuilder();
+  if(treeOpen)return viewTree();
   var d=S.draft,type=d?d.type:nextType(),plan=S.plan[type]||[];
   if(detail!==null&&plan[detail])return viewDetail(plan[detail],type);
   var rs=remainingSets(plan,d),started=rs.done>0,pos=runPos(),nm=(S.profile&&S.profile.name)||"";
-  var h='<p class="progline"><b>'+esc(progName())+'</b><span>'+weekSessions()+' van '+goalSessions()+' sessies deze week</span></p>';
+  var gp=pathById(S.goal),h=gp?'<button class="panel goalcard" data-act="tree"><span class="k">Jouw doel</span><b>'+gp.n+'</b><span>'+(pathDone(gp)?'Bereikt':'Stap '+(curStep(gp)+1)+' van '+gp.steps.length+': '+esc(cardById(gp.steps[curStep(gp)]).n))+'</span></button>':'<button class="panel goalcard" data-act="tree"><span class="k">Nieuw</span><b>Kies een doel</b><span>Front lever, handstand of L-sit</span></button>';
+  h+='<p class="progline"><b>'+esc(progName())+'</b><span>'+weekSessions()+' van '+goalSessions()+' sessies deze week</span></p>';
   h+='<div class="seg" role="group" aria-label="Kies sessie" style="margin:0 0 16px">'+
     ['A','B'].map(function(t){return '<button data-act="type" data-v="'+t+'" aria-pressed="'+(type===t)+'">Sessie '+t+(t===nextType()&&!started?' &middot; vandaag':'')+'</button>';}).join("")+'</div>';
   if(!plan.length){
@@ -1031,8 +1114,8 @@ function viewBuilder(){
   h+='<button class="btn ghost full" data-act="blib" aria-expanded="'+bldLib+'">'+(bldLib?'Bibliotheek sluiten':'Oefening toevoegen')+'</button>';
   if(bldLib){
     h+='<div class="panel" style="margin-top:12px"><div class="seg" role="group" aria-label="Soort" style="margin:0 0 8px">'+Object.keys(SUITS).map(function(k){return '<button data-act="bsuit" data-v="'+k+'" aria-pressed="'+(bldSuit===k)+'" style="font-size:14px">'+SUITS[k]+'</button>';}).join("")+'</div>';
-    DECK.filter(function(c){return c.s===bldSuit;}).sort(function(x,y){return x.l-y.l;}).forEach(function(c){
-      h+='<button class="libitem" data-act="badd" data-v="'+c.id+'"><b style="font-weight:600">'+esc(c.n)+'</b><span>Niveau '+c.l+' · '+esc(c.a)+'</span></button>';
+    ALL.filter(function(c){return c.s===bldSuit;}).sort(function(x,y){return x.l-y.l;}).forEach(function(c){
+      h+='<button class="libitem" data-act="badd" data-v="'+c.id+'"><b style="font-weight:600">'+esc(c.n)+'</b><span>'+(c.l>3?'Doelstap':'Niveau '+c.l)+' · '+esc(c.a)+'</span></button>';
     });
     h+='<div class="row" style="margin-top:12px"><input id="own" type="text" placeholder="Eigen oefening" aria-label="Naam eigen oefening" style="flex:1;min-height:48px;font:inherit;color:var(--ink);background:var(--well);border:var(--ew) solid var(--edge);border-radius:var(--rs);padding:0 12px"><button class="btn ghost" data-act="bown">Toevoegen</button></div></div>';
   }
@@ -1156,7 +1239,7 @@ function render(){
   else if(running)html=viewRun();
   else{
     var body=tab==="today"?viewToday():tab==="cards"?viewCards():tab==="progress"?viewProgress():viewProfile();
-    var hasHead=(tab==="today"&&!bld&&detail===null)||tab==="cards";
+    var hasHead=(tab==="today"&&!bld&&detail===null&&!treeOpen)||tab==="cards";
     html=(hasHead?header():"")+(DEMO?'<p class="muted" style="text-align:center;font-size:13px;margin:'+(hasHead?'-8px':'0')+' 0 12px">Voorbeeldgegevens, er wordt niets opgeslagen</p>':"")+body+tabBar();
   }
   document.getElementById("app").innerHTML=html;
@@ -1169,7 +1252,7 @@ function ensureDraft(type){if(!S.draft||S.draft.type!==type)S.draft={type:type,d
 document.getElementById("app").addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b)return;
   var act=b.getAttribute("data-act"),v=b.getAttribute("data-v");
-  if(act==="tab"){wSel=null;profOpen={weight:false,tips:false,settings:false,data:false};avatarOpen=false;skillsOpen=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
+  if(act==="tab"){wSel=null;profOpen={weight:false,tips:false,settings:false,data:false};avatarOpen=false;skillsOpen=false;treeOpen=false;treeChoose=false;dropBuilder();stopTimer();if(running)runExit();if(detail!==null&&history.state&&history.state.lu==="d"){try{history.replaceState(null,"");}catch(e){}}detail=null;if(v!=="cards")wrap=null;tab=v;render();window.scrollTo(0,0);return;}
   if(act==="type"){
     if(S.draft&&Object.keys(S.draft.done).length&&S.draft.type!==v&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;
     S.draft={type:v,done:{}};save();render();return;
@@ -1211,8 +1294,16 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="radd30"){runRest.end+=30000;runRest.total+=30;tickRest();return;}
   if(act==="rnext"){endRest(false);return;}
   if(act==="rundo"){if(runLast&&S.draft&&S.draft.done[runLast.i]){S.draft.done[runLast.i][runLast.k]=false;save();}stopRunTimers();runPhase="work";runLast=null;render();window.scrollTo(0,0);autoStartTimed();return;}
-  if(act==="obname"){var nv=document.getElementById("obname").value.trim().slice(0,20);S.profile=S.profile||{};S.profile.name=nv;save();obStep=2;render();window.scrollTo(0,0);return;}
-  if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}obStep=3;render();window.scrollTo(0,0);return;}
+  if(act==="obnext"){var p4=pathById(S.goal);if(obStep===4&&p4){applyPath(p4);}obStep++;render();window.scrollTo(0,0);return;}
+  if(act==="obname"){var nv=document.getElementById("obname").value.trim().slice(0,20);S.profile=S.profile||{};S.profile.name=nv;save();obStep=3;render();window.scrollTo(0,0);return;}
+  if(act==="obgoal"){if(v==="sterker"){S.goal=null;obStep="prog";}else{S.goal=v;obStep=4;}save();render();window.scrollTo(0,0);return;}
+  if(act==="obcheck"){var cid=b.getAttribute("data-id");if(skills()[cid]==="beheerst")delete skills()[cid];else skills()[cid]="beheerst";save();render();return;}
+  if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.goal=null;S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
+  if(act==="tree"){treeOpen=true;treeChoose=!S.goal;render();window.scrollTo(0,0);return;}
+  if(act==="treeclose"){treeOpen=false;treeChoose=false;render();return;}
+  if(act==="goalchange"){treeChoose=true;render();window.scrollTo(0,0);return;}
+  if(act==="goalpick"){if(v==="sterker"){S.goal=null;treeOpen=false;treeChoose=false;save();render();return;}var gp2=pathById(v);if(S.draft&&Object.keys(S.draft.done).length&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;applyPath(gp2);treeChoose=false;render();window.scrollTo(0,0);toast("Doel: "+gp2.n);return;}
+  if(act==="goaltrain"){var gp3=pathById(S.goal);if(!gp3)return;if(S.draft&&Object.keys(S.draft.done).length&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;applyPath(gp3);treeOpen=false;render();window.scrollTo(0,0);toast("Sessies bijgewerkt voor jouw stap");return;}
   if(act==="obdone"){S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
   if(act==="open"){detail=+b.getAttribute("data-i");try{history.pushState({lu:"d"},"");}catch(e){}render();window.scrollTo(0,0);return;}
   if(act==="close"){stopTimer();if(history.state&&history.state.lu==="d"){history.back();return;}detail=null;render();return;}
