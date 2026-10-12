@@ -882,7 +882,7 @@ function viewRun(){
       '<p class="restq">&ldquo;'+esc(runRest.quote)+'&rdquo;</p>'+
       '<p class="nextup">Straks: <b>'+esc(e.n)+'</b>, ronde '+(pos.k+1)+' van '+e.sets+'</p>'+
       '<div class="runact"><div class="row"><button class="btn ghost" data-act="radd30">+30 sec</button><button class="btn" style="flex:1" data-act="rnext">Overslaan</button></div>'+
-      (runLast?'<button class="linkbtn" data-act="rundo">Ronde niet gedaan?</button>':'')+'</div></div>';
+      (runLast?'<div class="row2"><button class="btn2" data-act="rundo">Ronde niet gedaan?</button></div>':'')+'</div></div>';
     return h+'</div>';
   }
   var mu=MUSCLES[e.n.toLowerCase()];
@@ -898,7 +898,7 @@ function viewRun(){
   h+='<div class="runact">';
   if(timed)h+=(runT.state==="idle"?'<button class="btn" data-act="rstart">Start</button>':'<button class="btn ghost" data-act="rstart">Stop</button>');
   else h+='<button class="btn" data-act="rdone">Ronde klaar</button>';
-  h+='<button class="linkbtn" data-act="rskip">Oefening overslaan</button></div></div></div>';
+  h+='<div class="row2"><button class="btn2" data-act="rskip">Oefening overslaan</button></div></div></div></div>';
   return h;
 }
 function goalList(act){
@@ -918,7 +918,7 @@ function viewOnboard(){
     var st=p.steps[curStep(p)],sc=cardById(st);
     h+='<h1>Dit is jouw plan</h1>'+levBubble('Je begint bij '+sc.n+'. '+(CUES[st]||''))+'<p class="muted" style="margin-top:14px">Sessie A en B wisselen elkaar af, elk met je doelstap bovenaan.</p><div class="panel xlist" style="text-align:left">'+S.plan.A.map(function(e,i){return '<div class="xrow"><span class="xn">'+(i+1)+'</span><span class="xt">'+esc(e.n)+'</span><span class="xa">'+shortAmount(e)+'</span></div>';}).join("")+'</div><button class="btn full" data-act="obdone">Naar mijn sessie</button>';
   }
-  else h+='<h1>Kies je programma</h1><p class="muted">Je past het later altijd aan.</p><div class="pgms" style="text-align:left">'+PROGRAMS.map(function(g,i){return '<button class="pgm" data-act="obprog" data-v="'+i+'"><b>'+g.n+'</b><span>'+g.d+'</span></button>';}).join("")+'</div><button class="linkbtn" data-act="obown">Ik stel zelf mijn programma samen</button>';
+  else h+='<h1>Kies je programma</h1><p class="muted">Je past het later altijd aan.</p><div class="pgms" style="text-align:left">'+PROGRAMS.map(function(g,i){return '<button class="pgm" data-act="obprog" data-v="'+i+'"><b>'+g.n+'</b><span>'+g.d+'</span></button>';}).join("")+'</div><div class="row2"><button class="btn2" data-act="obown">Ik stel zelf mijn programma samen</button></div>';
   return h+'</div>';
 }
 
@@ -934,7 +934,7 @@ function viewTree(){
     if(i===ci&&!done&&CUES[id])h+='<p class="tcue">'+esc(CUES[id])+'</p>';
     h+=skillSeg(id,skills()[id]||"nieuw")+'</div></li>';
   });
-  h+='</ol><button class="btn full" data-act="goaltrain">Train deze stap</button><button class="linkbtn" data-act="goalchange">Ander doel kiezen</button>';
+  h+='</ol><button class="btn full" data-act="goaltrain">Train deze stap</button><div class="row2"><button class="btn2" data-act="goalchange">Ander doel kiezen</button></div>';
   return h;
 }
 
