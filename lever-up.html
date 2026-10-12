@@ -138,24 +138,11 @@ svg text{font-family:var(--body);fill:var(--muted);font-size:10px}
 .streak{display:flex;align-items:center;gap:14px}
 .streak .fl{width:44px;height:44px;color:var(--accent);flex:none}
 .streak .nr{font-family:var(--display);font-weight:700;font-size:32px;line-height:1}
-.week7{display:flex;justify-content:space-between;margin-top:16px}
-.week7 span{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
-.week7 i{width:26px;height:26px;border-radius:50%;background:var(--tint)}
-.week7 i.on{background:var(--accent)}
-.prog{text-align:center}
-.prog .ringwrap{width:190px;margin:2px auto 4px}
-.prog .ringwrap svg{width:100%;height:auto;display:block;}
-.prog h2{margin:2px 0 14px}
 .badges{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 16px}
 .badge{background:var(--card);border:var(--ew) solid var(--edge);box-shadow:0 var(--sh) 0 var(--edge);border-radius:var(--rl);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;font-size:13px;line-height:1.2}
 .badge svg{width:60px;height:60px}
 .badge.off{opacity:.8}
 .badge small{font-weight:600;font-size:12px;color:var(--muted)}
-.goals{text-align:left}
-.goals li{align-items:center;gap:10px;justify-content:flex-start}
-.goals .ck{width:26px;height:26px;border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;flex:none}
-.goals li.ok .ck{background:var(--accent);color:var(--accent-ink)}
-.goals .n{margin-left:auto;color:var(--muted);font-weight:600}
 
 .lvl{position:fixed;inset:0;background:rgba(14,24,48,.95);z-index:9;display:flex;align-items:center;justify-content:center;padding:24px}
 .lvl .box{text-align:center;max-width:320px}
@@ -1089,11 +1076,6 @@ function medal(kind,on){
     '<circle cx="30" cy="28" r="22" style="fill:'+fill+'"/>'+
     '<g transform="translate(30 28)">'+g+'</g></svg>';
 }
-function ringArc(i,n,r){
-  var g=.05,a0=-Math.PI/2+(i/n)*2*Math.PI+g,a1=-Math.PI/2+((i+1)/n)*2*Math.PI-g;
-  function P(a){return (60+r*Math.cos(a)).toFixed(2)+" "+(60+r*Math.sin(a)).toFixed(2);}
-  return "M"+P(a0)+" A"+r+" "+r+" 0 0 1 "+P(a1);
-}
 function rankPanel(){
   var n=S.sessions.length,m=masteredCount(),next=nextRank(),bars="",line="Hoogste rang bereikt";
   if(next){
@@ -1139,16 +1121,7 @@ function viewProgress(){
   var n=weekSessions();
   var cw=(S.cardLog||[]).filter(function(d){return parseYmd(d).getTime()>=ws;}).length;
   var wn=S.weights.filter(function(w){return parseYmd(w.date).getTime()>=ws;}).length;
-  var goals=[[goalSessions()+" sessies",n,goalSessions()],["1 bonuskaart",cw,1],["4 weigh-ins",wn,4]];
-  var pct=Math.round(goals.reduce(function(a,g){return a+Math.min(1,g[1]/g[2]);},0)/goals.length*100);
-  var N=20,lit=Math.round(pct/100*N),segs="";
-  for(var i=0;i<N;i++)segs+='<path d="'+ringArc(i,N,48)+'" fill="none" stroke="'+(i<lit?"var(--accent)":"rgba(255,255,255,.1)")+'" stroke-width="10"/>';
-  var ring='<svg viewBox="0 0 120 120" role="img" aria-label="'+pct+' procent van je weekdoelen">'+segs+
-    '<text x="60" y="64" text-anchor="middle" style="font:700 26px Figtree;fill:var(--ink)">'+pct+'%</text>'+
-    '<text x="60" y="80" text-anchor="middle" style="font:500 10px Figtree;fill:var(--muted)">Weekdoelen</text></svg>';
   var B=badgeList();
-  var GOALS='<h3 style="text-align:left;margin:18px 0 4px">Wekelijkse doelen</h3><ul class="list goals">'+
-    goals.map(function(g){var ok=g[1]>=g[2];return '<li class="'+(ok?"ok":"")+'"><span class="ck">'+(ok?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':'')+'</span><span>'+g[0]+'</span><span class="n">'+Math.min(g[1],g[2])+'/'+g[2]+'</span></li>';}).join("")+'</ul>';
   var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel wk"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg><div><div class="nr">'+streakWeeks()+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(streakWeeks()?(streakWeeks()===1?'week':'weken')+' op rij met '+goalSessions()+' sessies':'Haal deze week '+goalSessions()+' sessies')+'</div></div></div><div class="rings3">'+miniRing("Sessies",n,goalSessions())+miniRing("Bonuskaart",cw,1)+miniRing("Weigh-ins",wn,4)+'</div></div>'+
     '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){var got=S.badges&&S.badges[b.id]!==undefined||b.ok,dt=S.badges&&S.badges[b.id];return '<div class="badge'+(got?"":" off")+'" aria-label="'+b.name+(got?", behaald":", nog niet behaald, "+b.crit)+'">'+medal(b.id,got)+b.name+(got?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>'+b.crit+'</small>')+'</div>';}).join("")+'</div>'+suitPanel()+historyPanel();
   return h;
