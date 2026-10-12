@@ -404,6 +404,11 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .hcue{margin:2px 0 10px;font-size:15px}
   .row2{display:flex;gap:10px;margin-top:12px}
   .btn2{flex:1;min-height:48px;border-radius:var(--rs);border:var(--ew) solid var(--edge);background:#263d6e;color:var(--ink);font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+
+  .lfh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .lfh .k{margin:0}
+  .chevs{display:flex;gap:2px}
+  .chev{width:48px;height:48px;display:grid;place-items:center;border:0;background:none;color:var(--muted);border-radius:50%;cursor:pointer}
 </style>
 </head>
 <body>
@@ -738,7 +743,7 @@ var factOff=0;
 function levFact(){
   var ls=S.sessions.length?S.sessions[S.sessions.length-1].date:null,gap=ls?Math.floor((Date.now()-parseYmd(ls).getTime())/864e5):0;
   if(ls&&gap>=7&&!factOff)return {k:"Welkom terug",t:"Een pauze is geen straf. Begin licht, doe één sessie en bouw rustig weer op."};
-  var f=LEVFACTS[(Math.floor(Date.now()/864e5)+factOff)%LEVFACTS.length];
+  var n=LEVFACTS.length,f=LEVFACTS[(((Math.floor(Date.now()/864e5)+factOff)%n)+n)%n];
   return {k:f[0]==="feitje"?"Wist je dat?":"Lev zegt",t:f[1]};
 }
 var ALLTIPS=[];TIPBLOCKS.forEach(function(b){b.l.forEach(function(x){ALLTIPS.push({c:b.t,t:x});});});
@@ -1012,7 +1017,8 @@ function viewToday(){
   h+='</div>';
   if(started&&pos)h+='<button class="btn ghost full" data-act="finish">Nu afronden</button>';
   var lf=levFact();
-  h+='<div class="levfact"><div class="k">'+lf.k+'</div>'+levBubble(lf.t)+'<button class="linkbtn" data-act="levmore">Nog een</button></div>';
+  var chev=function(d,l){return '<button class="chev" data-act="levmore" data-v="'+d+'" aria-label="'+l+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(d>0?'M9 5l7 7-7 7':'M15 5l-7 7 7 7')+'"/></svg></button>';};
+  h+='<div class="levfact"><div class="lfh"><div class="k">'+lf.k+'</div><div class="chevs">'+chev(-1,'Vorige')+chev(1,'Volgende')+'</div></div>'+levBubble(lf.t)+'</div>';
   return h;
 }
 
@@ -1388,7 +1394,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="obcheck"){var cid=b.getAttribute("data-id");if(skills()[cid]==="beheerst")delete skills()[cid];else skills()[cid]="beheerst";save();render();return;}
   if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.goal=null;S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
   if(act==="cfgday"){var dn=+v,dl=trainDays().slice(),di=dl.indexOf(dn);if(di>-1){if(dl.length>1)dl.splice(di,1);}else dl.push(dn);cfg().days=dl;save();render();return;}
-  if(act==="levmore"){factOff++;render();return;}
+  if(act==="levmore"){factOff+=(+v||1);render();return;}
   if(act==="tree"){treeOpen=true;treeChoose=!S.goal;render();window.scrollTo(0,0);return;}
   if(act==="treeclose"){treeOpen=false;treeChoose=false;render();return;}
   if(act==="goalchange"){treeChoose=true;render();window.scrollTo(0,0);return;}
