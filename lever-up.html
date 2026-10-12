@@ -400,6 +400,21 @@ h1,h2,h3,.btn,.chip,.clock,.kc-name,.big,.sess b,.facts dd,.nr,.kc-amt,.ex-head 
   .wk .rings3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
   .mr{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
   .mr svg{width:72px;height:72px}
+
+  .padp{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;margin-bottom:14px}
+  .padp .k,.mk{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .mk span{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:600;margin-left:6px}
+  .padp b{display:block;font-size:18px}
+  .padp>span{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+  .chain{display:flex;align-items:center;margin:2px 0 14px}
+  .chain i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--tint)}
+  .chain i.done{background:var(--accent)}
+  .chain i.now{background:transparent;border:2px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .chain u{flex:1;height:3px;background:var(--tint)}
+  .chain u.on{background:var(--accent)}
+  .mtxt{margin:12px 0 0;font-size:15px;line-height:1.5}
+  .miles{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 2px 10px;margin:0 -2px 8px}
+  .miles .badge{flex:none;width:132px;scroll-snap-align:start}
 </style>
 </head>
 <body>
@@ -1070,6 +1085,9 @@ function medal(kind,on){
   if(kind==="first")g='<path d="M0 -12 L3.6 -3.8 L12.6 -3 L5.8 3 L7.8 12 L0 7.2 L-7.8 12 L-5.8 3 L-12.6 -3 L-3.6 -3.8Z" style="fill:'+ink+'"/>';
   if(kind==="five")g='<text x="0" y="8" text-anchor="middle" style="font:700 24px Figtree;fill:'+ink+'">5</text>';
   if(kind==="week")g='<path d="M-11 8 L-11 -6 L-5 0 L0 -10 L5 0 L11 -6 L11 8Z" style="fill:'+ink+'"/>';
+  if(kind==="step")g='<path d="M0 -11 L10 0 L4 0 L4 11 L-4 11 L-4 0 L-10 0Z" style="fill:'+ink+'"/>';
+  if(kind==="goal")g='<path d="M-8 12 L-8 -12 L10 -6 L-8 1Z" style="fill:'+ink+'"/>';
+  if(kind==="month")g='<g transform="translate(-12 -12)"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" style="fill:'+ink+'"/></g>';
   if(kind==="cards")g='<rect x="-8" y="-11" width="16" height="22" rx="4" style="fill:'+ink+'"/><circle cx="0" cy="0" r="3.4" style="fill:'+fill+'"/>';
   return '<svg viewBox="0 0 60 60" aria-hidden="true">'+
     '<path d="M18 38 L12 58 L22 52 L28 58 L30 40Z M42 38 L48 58 L38 52 L32 58 L30 40Z" style="fill:'+fill+';opacity:.7"/>'+
@@ -1099,16 +1117,33 @@ function historyPanel(){
   var li=S.sessions.slice(-8).reverse().map(function(x){return '<li><span>'+nlDate(x.date)+'</span><span class="muted">Sessie '+x.type+', '+nRondes(x.sets)+'</span></li>';}).join("");
   return '<details class="panel fold"><summary>Laatste sessies<span>'+S.sessions.length+' in totaal</span></summary><ul class="list">'+li+'</ul></details>';
 }
-function suitPanel(){
-  var h='<details class="panel fold"><summary>Opbouw per spiergroep<span>beheersing</span></summary><div class="sl" style="margin-top:14px"><span></span><span class="h" style="text-align:center">Niv 1</span><span class="h" style="text-align:center">Niv 2</span><span class="h" style="text-align:center">Niv 3</span>';
-  Object.keys(SUITS).forEach(function(k){
-    var best=0;h+='<b>'+SUITS[k]+'</b>';
-    [1,2,3].forEach(function(l){
-      var cs=DECK.filter(function(c){return c.s===k&&c.l===l;}),f=cs.filter(function(c){return skills()[c.id]==="beheerst";}).length;if(f)best=l;
-      h+='<span class="lv" role="img" aria-label="Niveau '+l+': '+f+' van '+cs.length+' beheerst">'+cs.map(function(c){var st=skills()[c.id];return '<i class="'+(st==="beheerst"?'on':st==="bezig"?'half':'')+'"></i>';}).join("")+'</span>';
-    });
+function padPanel(){
+  var p=pathById(S.goal);
+  if(!p)return '<button class="panel padp" data-act="tree"><div class="k">Jouw pad</div><b>Kies je doel</b><span>Dan zie je hier je stappen, een voor een.</span></button>';
+  var ci=curStep(p),done=pathDone(p),left=p.steps.filter(function(id){return skills()[id]!=="beheerst";}).length,ch="";
+  p.steps.forEach(function(id,i){
+    var m=skills()[id]==="beheerst";
+    ch+=(i?'<u class="'+(m?'on':'')+'"></u>':'')+'<i class="'+(m?'done':(i===ci&&!done?'now':''))+'"></i>';
   });
-  return h+'</div><p class="muted" style="font-size:14px;margin-top:12px">Gevuld is beheerst, half is bezig.</p><button class="btn ghost full" data-act="skills" style="margin-top:12px">Alle vaardigheden</button></details>';
+  return '<button class="panel padp" data-act="tree"><div class="k">Jouw pad</div><div class="chain" role="img" aria-label="'+(p.steps.length-left)+' van '+p.steps.length+' stappen beheerst">'+ch+'</div><b>'+(done?'Doel bereikt: '+p.n:'Nog '+left+(left===1?' stap':' stappen')+' tot '+p.n)+'</b><span>'+(done?'Tijd voor een nieuw doel.':'Nu: '+esc(cardById(p.steps[ci]).n))+'</span></button>';
+}
+function muscleCard(){
+  var cut=Date.now()-28*864e5,load={},keys=Object.keys(MLABEL);
+  S.sessions.forEach(function(x){
+    if(!x.ex||parseYmd(x.date).getTime()<cut)return;
+    x.ex.forEach(function(e){var m=MUSCLES[String(e.n).toLowerCase()];if(!m)return;m[0].forEach(function(k){load[k]=(load[k]||0)+e.d;});m[1].forEach(function(k){load[k]=(load[k]||0)+e.d*.4;});});
+  });
+  var mx=Math.max.apply(null,keys.map(function(k){return load[k]||0;}));
+  if(!mx)return '<div class="panel"><div class="k mk">Wat je traint</div><p class="muted" style="margin:0">Doe een sessie, dan kleurt hier je spierkaart in.</p></div>';
+  var P=keys.filter(function(k){return (load[k]||0)>=mx*.55;}),Sx=keys.filter(function(k){return (load[k]||0)>=mx*.15&&P.indexOf(k)<0;}),
+    top=keys.filter(function(k){return (load[k]||0)>0;}).sort(function(a,b){return load[b]-load[a];}).slice(0,3),low=keys.filter(function(k){return !(load[k]>0);}).slice(0,3);
+  function nm(l){return l.map(function(k){return MLABEL[k].toLowerCase();}).join(", ");}
+  return '<div class="panel"><div class="k mk">Wat je traint <span>laatste 4 weken</span></div>'+muscleMap([P,Sx])+'<p class="mtxt"><b>Meest:</b> '+nm(top)+(low.length?'<br><b>Nog weinig:</b> '+nm(low):'')+'</p></div>';
+}
+function milesPanel(){
+  var B=badgeList(),got=function(b){return S.badges&&S.badges[b.id]!==undefined||b.ok;},earned=B.filter(got),nxt=B.filter(function(b){return !got(b);})[0];
+  var list=earned.concat(nxt?[nxt]:[]);
+  return '<div class="lfh" style="margin:0 2px 8px"><h3 style="margin:0">Mijlpalen</h3><span class="muted" style="font-size:14px;font-weight:600">'+earned.length+' van '+B.length+'</span></div><div class="miles">'+list.map(function(b){var on=got(b),dt=S.badges&&S.badges[b.id];return '<div class="badge'+(on?"":" off")+'" aria-label="'+b.name+(on?", behaald":", volgende, "+b.crit)+'">'+medal(b.id,on)+b.name+(on?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>Volgende: '+b.crit+'</small>')+'</div>';}).join("")+'</div>';
 }
 function miniRing(label,have,need){
   var f=Math.min(1,have/need),C=163.4,ok=have>=need;
@@ -1121,16 +1156,15 @@ function viewProgress(){
   var n=weekSessions();
   var cw=(S.cardLog||[]).filter(function(d){return parseYmd(d).getTime()>=ws;}).length;
   var wn=S.weights.filter(function(w){return parseYmd(w.date).getTime()>=ws;}).length;
-  var B=badgeList();
-  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+'<div class="panel wk"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg><div><div class="nr">'+streakWeeks()+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(streakWeeks()?(streakWeeks()===1?'week':'weken')+' op rij met '+goalSessions()+' sessies':'Haal deze week '+goalSessions()+' sessies')+'</div></div></div><div class="rings3">'+miniRing("Sessies",n,goalSessions())+miniRing("Bonuskaart",cw,1)+miniRing("Weigh-ins",wn,4)+'</div></div>'+
-    '<h3 style="margin:0 2px 10px">Badges</h3><div class="badges">'+B.map(function(b){var got=S.badges&&S.badges[b.id]!==undefined||b.ok,dt=S.badges&&S.badges[b.id];return '<div class="badge'+(got?"":" off")+'" aria-label="'+b.name+(got?", behaald":", nog niet behaald, "+b.crit)+'">'+medal(b.id,got)+b.name+(got?(dt?'<small>behaald '+parseYmd(dt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+'</small>':''):'<small>'+b.crit+'</small>')+'</div>';}).join("")+'</div>'+suitPanel()+historyPanel();
+  var h='<h2 style="margin:0 2px 12px">Jouw voortgang</h2>'+rankPanel()+padPanel()+'<div class="panel wk"><div class="streak"><svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 5-8 7-13z" fill="currentColor"/></svg><div><div class="nr">'+streakWeeks()+'</div><div class="k" style="font-size:14px;font-weight:600;color:var(--muted)">'+(streakWeeks()?(streakWeeks()===1?'week':'weken')+' op rij met '+goalSessions()+' sessies':'Haal deze week '+goalSessions()+' sessies')+'</div></div></div><div class="rings3">'+miniRing("Sessies",n,goalSessions())+miniRing("Bonuskaart",cw,1)+miniRing("Weigh-ins",wn,4)+'</div></div>'+
+    muscleCard()+milesPanel()+historyPanel()+'<div class="row2" style="margin-top:14px"><button class="btn2" data-act="skills">Alle vaardigheden</button></div>';
   return h;
 }
-var BADGE_LINES={first:"Eerste sessie in de pocket. Dit is pas het begin.",five:"Vijf keer raak. Jij hebt de smaak te pakken.",week:"Drie sessies in één week. Dat noem ik consistent, koning.",cards:"Zes kaarten verzameld. De kaartenjager heeft weer toegeslagen."};
+var BADGE_LINES={first:"Eerste sessie in de pocket. Dit is pas het begin.",five:"Vijf keer raak. Jij hebt de smaak te pakken.",week:"Drie sessies in één week. Dat noem ik consistent, koning.",cards:"Zes kaarten verzameld. De kaartenjager heeft weer toegeslagen.",step:"Eerste stap gehaald. Het pad begint hier.",month:"Vier weken op rij. Dit is nu gewoon wie je bent.",goal:"Doel bereikt! Ik wist het, kampioen."};
 function badgeList(){
   var n=S.sessions.length,uniq=DECK.filter(function(c){return S.cards[c.id];}).length,wk=weekCounts();
   var wk3=Object.keys(wk).some(function(k){return wk[k]>=3;});
-  return [{id:"first",name:"Eerste sessie",crit:"1 sessie",ok:n>=1},{id:"five",name:"Vijf keer raak",crit:Math.min(5,n)+"/5 sessies",ok:n>=5},{id:"week",name:"Consistentie-koning",crit:"3 sessies in een week",ok:wk3},{id:"cards",name:"Kaartenjager",crit:Math.min(6,uniq)+"/6 kaarten",ok:uniq>=6}];
+  return [{id:"first",name:"Eerste sessie",crit:"1 sessie",ok:n>=1},{id:"five",name:"Vijf keer raak",crit:Math.min(5,n)+"/5 sessies",ok:n>=5},{id:"week",name:"Consistentie-koning",crit:"3 sessies in een week",ok:wk3},{id:"cards",name:"Kaartenjager",crit:Math.min(6,uniq)+"/6 kaarten",ok:uniq>=6},{id:"step",name:"Eerste stap",crit:"1 doelstap beheerst",ok:PATHS.some(function(q){return q.steps.some(function(id){return skills()[id]==="beheerst";});})},{id:"month",name:"Vier weken op rij",crit:Math.min(4,streakWeeks())+"/4 weken",ok:streakWeeks()>=4},{id:"goal",name:"Doel bereikt",crit:"alle stappen van een doel",ok:PATHS.some(pathDone)}];
 }
 /* een badge blijft behaald; silent = achteraf invullen voor bestaande data, zonder viering en zonder datum */
 function checkBadges(silent){
@@ -1334,8 +1368,8 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="finish"){finishSession();return;}
   if(act==="skills"){skillsOpen=true;render();window.scrollTo(0,0);return;}
   if(act==="skillsclose"){skillsOpen=false;render();return;}
-  if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx(),gm=goalShift(sid,function(){if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;});save();render();toast(gm||(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt"));if(gm)confetti();afterRank(rb);return;}
-  if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx(),sid2=wrap.sugg.id,gm2=goalShift(sid2,function(){skills()[sid2]="beheerst";});wrap.sugg=null;save();render();toast(gm2||pick(SKILL_LINES));if(gm2)confetti();afterRank(rb2);return;}
+  if(act==="skill"){var sid=b.getAttribute("data-id"),rb=rankIdx(),gm=goalShift(sid,function(){if(v==="nieuw")delete skills()[sid];else skills()[sid]=v;});save();render();toast(gm||(v==="beheerst"?pick(SKILL_LINES):"Status bijgewerkt"));if(gm)confetti();afterRank(rb);checkBadges();return;}
+  if(act==="skillyes"){if(!wrap||!wrap.sugg)return;var rb2=rankIdx(),sid2=wrap.sugg.id,gm2=goalShift(sid2,function(){skills()[sid2]="beheerst";});wrap.sugg=null;save();render();toast(gm2||pick(SKILL_LINES));if(gm2)confetti();afterRank(rb2);checkBadges();return;}
   if(act==="skillno"){if(!wrap||!wrap.sugg)return;(S.skillAsk||(S.skillAsk={}))[wrap.sugg.id]=S.sessions.length;wrap.sugg=null;save();render();return;}
   if(act==="tipnext"){tipIdx=(tipIdx+1)%ALLTIPS.length;render();return;}
   if(act==="tipprev"){tipIdx=(tipIdx-1+ALLTIPS.length)%ALLTIPS.length;render();return;}
@@ -1375,7 +1409,7 @@ document.getElementById("app").addEventListener("click",function(ev){
   if(act==="obprog"||act==="obown"){var g0=PROGRAMS[act==="obprog"?+v:0];S.plan={A:g0.A.map(function(id){return entryFrom(cardById(id));}),B:g0.B.map(function(id){return entryFrom(cardById(id));})};S.program=act==="obprog"?g0.n:"Eigen programma";S.goal=null;S.draft=null;save();if(act==="obown"){S.onboarded=true;save();tab="today";bld=JSON.parse(JSON.stringify(S.plan));bldType="A";bldLib=false;bldProg=-1;render();window.scrollTo(0,0);return;}S.onboarded=true;save();tab="today";render();window.scrollTo(0,0);return;}
   if(act==="cfgday"){var dn=+v,dl=trainDays().slice(),di=dl.indexOf(dn);if(di>-1){if(dl.length>1)dl.splice(di,1);}else dl.push(dn);cfg().days=dl;save();render();return;}
   if(act==="levmore"){factOff+=(+v||1);render();return;}
-  if(act==="tree"){treeOpen=true;treeChoose=!S.goal;render();window.scrollTo(0,0);return;}
+  if(act==="tree"){tab="today";treeOpen=true;treeChoose=!S.goal;render();window.scrollTo(0,0);return;}
   if(act==="treeclose"){treeOpen=false;treeChoose=false;render();return;}
   if(act==="goalchange"){treeChoose=true;render();window.scrollTo(0,0);return;}
   if(act==="goalpick"){if(v==="sterker"){S.goal=null;treeOpen=false;treeChoose=false;save();render();return;}var gp2=pathById(v);if(S.draft&&Object.keys(S.draft.done).length&&!confirm("Je huidige sessie wordt gewist. Doorgaan?"))return;applyPath(gp2);treeChoose=false;render();window.scrollTo(0,0);toast("Doel: "+gp2.n);return;}
